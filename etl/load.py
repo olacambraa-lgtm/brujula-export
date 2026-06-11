@@ -84,6 +84,8 @@ def taric4(code):
     """Agrega a 4 dígitos; None si el código no es un nodo TARIC-4 válido
     (agregados tipo 'Total Taric' o capítulos de 2 dígitos se descartan)."""
     c = str(code).strip()
+    if " " in c:  # 'Total Taric' y similares
+        return None
     if len(c) > 4:
         c = c[:4]
     return c if len(c) == 4 else None
