@@ -83,7 +83,8 @@ CREATE TABLE countries (
   name         VARCHAR,
   iso2         VARCHAR,               -- para banderas/UI
   region       VARCHAR,
-  eu_member    BOOLEAN
+  eu_member    BOOLEAN,
+  access_tier  VARCHAR                -- 'UE' | 'EFTA/Acuerdo UE' | 'Resto' (mapeo estático en carga)
 );
 ```
 
