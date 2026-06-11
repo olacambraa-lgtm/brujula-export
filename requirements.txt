@@ -1,0 +1,8 @@
+# Dependencias directas de Brújula Export (pinneadas desde pip freeze)
+duckdb==1.5.3
+fastapi==0.136.3
+httpx==0.28.1
+pandas==3.0.3
+pytest==9.0.3
+requests==2.34.2
+uvicorn==0.49.0
