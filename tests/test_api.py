@@ -218,3 +218,26 @@ def test_insights_missing_404(client):
     r = client.get("/api/insights/0203")
     assert r.status_code == 404
     assert isinstance(r.json()["detail"], str)
+
+
+def test_search_gender_and_plural_robust(client):
+    # "porcino" debe encontrar "...especie porcina..." (prefijo de palabra con stem ligero)
+    r = client.get("/api/search", params={"q": "porcino"})
+    assert r.status_code == 200
+    tarics = [x["taric"] for x in r.json()["results"]]
+    assert "0203" in tarics
+
+
+def test_search_multiword_all_tokens_required(client):
+    # ambas palabras deben aparecer: "carne porcino" → 0203, no el vino
+    r = client.get("/api/search", params={"q": "carne porcino"})
+    tarics = [x["taric"] for x in r.json()["results"]]
+    assert tarics and tarics[0] == "0203"
+    assert "2204" not in tarics
+
+
+def test_search_token_is_word_prefix_not_substring(client):
+    # "vino" / "vinos" encuentran el 2204; un token interno de palabra no dispara falsos positivos
+    for q in ("vino", "vinos"):
+        r = client.get("/api/search", params={"q": q})
+        assert "2204" in [x["taric"] for x in r.json()["results"]], q

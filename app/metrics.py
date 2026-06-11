@@ -6,6 +6,7 @@ Contrato de salida: docs/specs/api-contract.md.
 
 import os
 import threading
+import re
 import unicodedata
 from bisect import bisect_left, bisect_right
 from datetime import date
@@ -135,6 +136,17 @@ def _normalize(text):
     return "".join(c for c in decomposed if unicodedata.category(c) != "Mn")
 
 
+def _stem(token):
+    """Stem ligero para español: quita plural (-es/-s) y vocal final de género."""
+    if len(token) > 4 and token.endswith("es"):
+        token = token[:-2]
+    elif len(token) > 3 and token.endswith("s"):
+        token = token[:-1]
+    if len(token) > 3 and token[-1] in "oa":
+        token = token[:-1]
+    return token
+
+
 # ------------------------------------------------------------------- meta
 
 def get_meta(db):
@@ -175,10 +187,26 @@ def search(db, q):
             "LIMIT 20",
             (q + "%", q))
     else:
+        # Cada palabra de la consulta debe aparecer como prefijo de palabra en
+        # la descripción, con stem ligero (quita plural y vocal de género): así
+        # «porcino» encuentra «porcina» y «vinos» encuentra «vino». Relevancia:
+        # las coincidencias del token sin stem (p.ej. «vino» en «vinos») van
+        # antes que las que solo alcanza el stem (p.ej. «vin» en «vinagre»).
+        tokens = [tok for tok in _normalize(q).split() if tok]
+        if not tokens:
+            return {"results": [], "suggestion": SEARCH_SUGGESTION}
+        norm_desc = "lower(strip_accents(n.description))"
+        condition = " AND ".join(
+            f"regexp_matches({norm_desc}, ?)" for _ in tokens)
+        relevance = " + ".join(
+            f"CAST(regexp_matches({norm_desc}, ?) AS INT)" for _ in tokens)
+        params = tuple("(^|[^a-z])" + re.escape(_stem(t)) for t in tokens) + \
+            tuple("(^|[^a-z])" + re.escape(t) for t in tokens)
         rows = db.query(
-            base + "WHERE lower(strip_accents(n.description)) LIKE ? "
-            "ORDER BY n.level, t.total DESC NULLS LAST, n.taric LIMIT 20",
-            ("%" + _normalize(q) + "%",))
+            base + f"WHERE {condition} "
+            f"ORDER BY ({relevance}) DESC, n.level, t.total DESC NULLS LAST, "
+            "n.taric LIMIT 20",
+            params)
     results = [
         {"taric": r[0], "description": r[1], "level": r[2], "has_data": bool(r[3])}
         for r in rows

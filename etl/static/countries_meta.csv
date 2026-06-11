@@ -1,0 +1,266 @@
+datacomex_code;iso2;region;access_tier
+001;FR;Europa occidental;UE
+002;;Europa occidental;UE
+003;NL;Europa occidental;UE
+004;DE;Europa occidental;UE
+005;IT;Europa occidental;UE
+006;GB;Europa occidental;EFTA/Acuerdo UE
+007;IE;Europa occidental;UE
+008;DK;Europa occidental;UE
+009;GR;Europa occidental;UE
+010;PT;Europa occidental;UE
+011;ES;Europa occidental;UE
+017;BE;Europa occidental;UE
+018;LU;Europa occidental;UE
+021;ES;Europa occidental;UE
+022;ES;Europa occidental;UE
+023;ES;Europa occidental;UE
+024;IS;Europa occidental;EFTA/Acuerdo UE
+025;FO;Europa occidental;EFTA/Acuerdo UE
+027;SJ;Europa occidental;Resto
+028;NO;Europa occidental;EFTA/Acuerdo UE
+030;SE;Europa occidental;UE
+032;FI;Europa occidental;UE
+036;CH;Europa occidental;EFTA/Acuerdo UE
+037;LI;Europa occidental;EFTA/Acuerdo UE
+038;AT;Europa occidental;UE
+039;CH;Europa occidental;EFTA/Acuerdo UE
+040;PT;Europa occidental;UE
+041;FO;Europa occidental;EFTA/Acuerdo UE
+043;AD;Europa occidental;EFTA/Acuerdo UE
+044;GI;Europa occidental;Resto
+045;VA;Europa occidental;Resto
+046;MT;Europa occidental;UE
+047;SM;Europa occidental;EFTA/Acuerdo UE
+048;;Europa del Este;Resto
+052;TR;Oriente Próximo;EFTA/Acuerdo UE
+053;EE;Europa del Este;UE
+054;LV;Europa del Este;UE
+055;LT;Europa del Este;UE
+056;;Europa del Este;Resto
+058;;Europa del Este;Resto
+060;PL;Europa del Este;UE
+061;CZ;Europa del Este;UE
+062;;Europa del Este;Resto
+063;SK;Europa del Este;UE
+064;HU;Europa del Este;UE
+066;RO;Europa del Este;UE
+068;BG;Europa del Este;UE
+070;AL;Europa del Este;EFTA/Acuerdo UE
+072;UA;Europa del Este;EFTA/Acuerdo UE
+073;BY;Europa del Este;Resto
+074;MD;Europa del Este;EFTA/Acuerdo UE
+075;RU;Europa del Este;Resto
+076;GE;Europa del Este;EFTA/Acuerdo UE
+077;AM;Europa del Este;Resto
+078;AZ;Europa del Este;Resto
+079;KZ;Otros;Resto
+080;TM;Otros;Resto
+081;UZ;Otros;Resto
+082;TJ;Otros;Resto
+083;KG;Otros;Resto
+090;;Europa del Este;Resto
+091;SI;Europa del Este;UE
+092;HR;Europa del Este;UE
+093;BA;Europa del Este;EFTA/Acuerdo UE
+094;;Europa del Este;Resto
+095;XK;Europa del Este;EFTA/Acuerdo UE
+096;MK;Europa del Este;EFTA/Acuerdo UE
+097;ME;Europa del Este;EFTA/Acuerdo UE
+098;RS;Europa del Este;EFTA/Acuerdo UE
+099;XK;Europa del Este;EFTA/Acuerdo UE
+204;MA;África del Norte;EFTA/Acuerdo UE
+208;DZ;África del Norte;EFTA/Acuerdo UE
+212;TN;África del Norte;EFTA/Acuerdo UE
+216;LY;África del Norte;Resto
+220;EG;África del Norte;EFTA/Acuerdo UE
+224;SD;África del Norte;Resto
+225;SS;África subsahariana;Resto
+228;MR;África subsahariana;Resto
+229;EH;África del Norte;Resto
+232;ML;África subsahariana;Resto
+236;BF;África subsahariana;Resto
+240;NE;África subsahariana;Resto
+244;TD;África subsahariana;Resto
+247;CV;África subsahariana;Resto
+248;SN;África subsahariana;Resto
+252;GM;África subsahariana;Resto
+257;GW;África subsahariana;Resto
+260;GN;África subsahariana;Resto
+264;SL;África subsahariana;Resto
+268;LR;África subsahariana;Resto
+272;CI;África subsahariana;EFTA/Acuerdo UE
+276;GH;África subsahariana;EFTA/Acuerdo UE
+280;TG;África subsahariana;Resto
+284;BJ;África subsahariana;Resto
+288;NG;África subsahariana;Resto
+302;CM;África subsahariana;EFTA/Acuerdo UE
+306;CF;África subsahariana;Resto
+310;GQ;África subsahariana;Resto
+311;ST;África subsahariana;Resto
+314;GA;África subsahariana;Resto
+318;CG;África subsahariana;Resto
+322;CD;África subsahariana;Resto
+324;RW;África subsahariana;Resto
+328;BI;África subsahariana;Resto
+329;SH;África subsahariana;Resto
+330;AO;África subsahariana;Resto
+334;ET;África subsahariana;Resto
+336;ER;África subsahariana;Resto
+338;DJ;África subsahariana;Resto
+342;SO;África subsahariana;Resto
+346;KE;África subsahariana;EFTA/Acuerdo UE
+350;UG;África subsahariana;Resto
+352;TZ;África subsahariana;Resto
+355;SC;África subsahariana;EFTA/Acuerdo UE
+357;IO;África subsahariana;Resto
+366;MZ;África subsahariana;EFTA/Acuerdo UE
+370;MG;África subsahariana;EFTA/Acuerdo UE
+372;RE;África subsahariana;UE
+373;MU;África subsahariana;EFTA/Acuerdo UE
+375;KM;África subsahariana;EFTA/Acuerdo UE
+377;YT;África subsahariana;UE
+378;ZM;África subsahariana;Resto
+382;ZW;África subsahariana;EFTA/Acuerdo UE
+386;MW;África subsahariana;Resto
+388;ZA;África subsahariana;EFTA/Acuerdo UE
+389;NA;África subsahariana;EFTA/Acuerdo UE
+390;ZA;África subsahariana;EFTA/Acuerdo UE
+391;BW;África subsahariana;EFTA/Acuerdo UE
+393;SZ;África subsahariana;EFTA/Acuerdo UE
+395;LS;África subsahariana;EFTA/Acuerdo UE
+400;US;Norteamérica;Resto
+404;CA;Norteamérica;EFTA/Acuerdo UE
+406;GL;Norteamérica;Resto
+408;PM;Norteamérica;Resto
+412;MX;Latinoamérica;EFTA/Acuerdo UE
+413;BM;Norteamérica;Resto
+416;GT;Latinoamérica;EFTA/Acuerdo UE
+421;BZ;Latinoamérica;EFTA/Acuerdo UE
+424;HN;Latinoamérica;EFTA/Acuerdo UE
+428;SV;Latinoamérica;EFTA/Acuerdo UE
+432;NI;Latinoamérica;EFTA/Acuerdo UE
+436;CR;Latinoamérica;EFTA/Acuerdo UE
+440;PA;Latinoamérica;EFTA/Acuerdo UE
+442;PA;Latinoamérica;EFTA/Acuerdo UE
+444;;Latinoamérica;Resto
+446;AI;Latinoamérica;Resto
+448;CU;Latinoamérica;Resto
+449;KN;Latinoamérica;EFTA/Acuerdo UE
+452;HT;Latinoamérica;Resto
+453;BS;Latinoamérica;EFTA/Acuerdo UE
+454;TC;Latinoamérica;Resto
+456;DO;Latinoamérica;EFTA/Acuerdo UE
+457;VI;Latinoamérica;Resto
+458;GP;Latinoamérica;UE
+459;AG;Latinoamérica;EFTA/Acuerdo UE
+460;DM;Latinoamérica;EFTA/Acuerdo UE
+462;MQ;Latinoamérica;UE
+463;KY;Latinoamérica;Resto
+464;JM;Latinoamérica;EFTA/Acuerdo UE
+465;LC;Latinoamérica;EFTA/Acuerdo UE
+466;BL;Latinoamérica;Resto
+467;VC;Latinoamérica;EFTA/Acuerdo UE
+468;VG;Latinoamérica;Resto
+469;BB;Latinoamérica;EFTA/Acuerdo UE
+470;MS;Latinoamérica;Resto
+472;TT;Latinoamérica;EFTA/Acuerdo UE
+473;GD;Latinoamérica;EFTA/Acuerdo UE
+474;AW;Latinoamérica;Resto
+475;CW;Latinoamérica;Resto
+476;;Latinoamérica;Resto
+477;BQ;Latinoamérica;Resto
+478;;Latinoamérica;Resto
+479;SX;Latinoamérica;Resto
+480;CO;Latinoamérica;EFTA/Acuerdo UE
+484;VE;Latinoamérica;Resto
+488;GY;Latinoamérica;EFTA/Acuerdo UE
+492;SR;Latinoamérica;EFTA/Acuerdo UE
+496;GF;Latinoamérica;UE
+500;EC;Latinoamérica;EFTA/Acuerdo UE
+504;PE;Latinoamérica;EFTA/Acuerdo UE
+508;BR;Latinoamérica;Resto
+512;CL;Latinoamérica;EFTA/Acuerdo UE
+516;BO;Latinoamérica;Resto
+520;PY;Latinoamérica;Resto
+524;UY;Latinoamérica;Resto
+528;AR;Latinoamérica;Resto
+529;FK;Latinoamérica;Resto
+600;CY;Europa occidental;UE
+604;LB;Oriente Próximo;EFTA/Acuerdo UE
+608;SY;Oriente Próximo;Resto
+612;IQ;Oriente Próximo;Resto
+616;IR;Oriente Próximo;Resto
+624;IL;Oriente Próximo;EFTA/Acuerdo UE
+625;PS;Oriente Próximo;EFTA/Acuerdo UE
+626;TL;Sudeste asiático;Resto
+628;JO;Oriente Próximo;EFTA/Acuerdo UE
+632;SA;Oriente Próximo;Resto
+636;KW;Oriente Próximo;Resto
+640;BH;Oriente Próximo;Resto
+644;QA;Oriente Próximo;Resto
+647;AE;Oriente Próximo;Resto
+649;OM;Oriente Próximo;Resto
+652;YE;Oriente Próximo;Resto
+653;YE;Oriente Próximo;Resto
+656;;Oriente Próximo;Resto
+660;AF;Asia meridional;Resto
+662;PK;Asia meridional;Resto
+664;IN;Asia meridional;Resto
+666;BD;Asia meridional;Resto
+667;MV;Asia meridional;Resto
+669;LK;Asia meridional;Resto
+672;NP;Asia meridional;Resto
+675;BT;Asia meridional;Resto
+676;MM;Sudeste asiático;Resto
+680;TH;Sudeste asiático;Resto
+684;LA;Sudeste asiático;Resto
+690;VN;Sudeste asiático;EFTA/Acuerdo UE
+696;KH;Sudeste asiático;Resto
+700;ID;Sudeste asiático;Resto
+701;MY;Sudeste asiático;Resto
+703;BN;Sudeste asiático;Resto
+706;SG;Sudeste asiático;EFTA/Acuerdo UE
+708;PH;Sudeste asiático;Resto
+716;MN;Asia oriental;Resto
+720;CN;Asia oriental;Resto
+724;KP;Asia oriental;Resto
+728;KR;Asia oriental;EFTA/Acuerdo UE
+732;JP;Asia oriental;EFTA/Acuerdo UE
+736;TW;Asia oriental;Resto
+740;HK;Asia oriental;Resto
+743;MO;Asia oriental;Resto
+800;AU;Oceanía;Resto
+801;PG;Oceanía;EFTA/Acuerdo UE
+803;NR;Oceanía;Resto
+804;NZ;Oceanía;EFTA/Acuerdo UE
+806;SB;Oceanía;EFTA/Acuerdo UE
+807;TV;Oceanía;Resto
+808;;Oceanía;Resto
+809;NC;Oceanía;Resto
+811;WF;Oceanía;Resto
+812;KI;Oceanía;Resto
+813;PN;Oceanía;Resto
+815;FJ;Oceanía;EFTA/Acuerdo UE
+816;VU;Oceanía;Resto
+817;TO;Oceanía;Resto
+819;WS;Oceanía;EFTA/Acuerdo UE
+820;MP;Oceanía;Resto
+822;PF;Oceanía;Resto
+823;FM;Oceanía;Resto
+824;MH;Oceanía;Resto
+825;PW;Oceanía;Resto
+830;AS;Oceanía;Resto
+831;GU;Oceanía;Resto
+832;UM;Oceanía;Resto
+833;CC;Oceanía;Resto
+834;CX;Oceanía;Resto
+835;HM;Oceanía;Resto
+836;NF;Oceanía;Resto
+837;CK;Oceanía;Resto
+838;NU;Oceanía;Resto
+839;TK;Oceanía;Resto
+891;AQ;Otros;Resto
+892;BV;Otros;Resto
+893;GS;Otros;Resto
+894;TF;Otros;Resto
