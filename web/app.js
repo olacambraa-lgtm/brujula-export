@@ -29,6 +29,7 @@ function fmtUnitValue(v) {
 
 // "2026-03" → "mar 2026"
 function fmtPeriod(p) {
+  if (!p) return 'n/d';
   const [y, m] = p.split('-');
   return MONTHS[+m - 1] + ' ' + y;
 }
@@ -236,7 +237,7 @@ function renderProductHeader() {
   $('#product-code').textContent = p.taric;
   $('#product-desc').textContent = p.description;
   $('#stat-total').textContent = fmtEur(p.total_exports_12m);
-  $('#stat-window').textContent = fmtPeriod(p.period_window.from) + ' – ' + fmtPeriod(p.period_window.to);
+  $('#stat-window').textContent = fmtPeriod(p.period_window?.from) + ' – ' + fmtPeriod(p.period_window?.to);
   $('#stat-candidates').textContent = nf0.format(p.n_candidates);
   $('#chip-aragon').textContent = 'Cuota Aragón ' + fmtPct(p.aragon_share);
   $('#chip-zaragoza').textContent = 'Zaragoza ' + fmtPct(p.zaragoza_share);
@@ -247,6 +248,7 @@ function renderProductHeader() {
 
   $('#ranking-card').hidden = !p.countries.length;
   $('#weights-panel').hidden = !p.countries.length;
+  $('#btn-report').hidden = !p.countries.length;
 }
 
 /* ============================== Sliders de pesos ============================== */
@@ -347,7 +349,7 @@ function renderStack(el, comps, score) {
     return `<i style="width:${part.toFixed(2)}%;background:${c.color}"></i>`;
   }).join('');
   el.title = COMPONENTS
-    .map((c) => `${c.label}: ${comps[c.key] ?? 50} · peso ${Math.round(((w[c.key] || 0) / sum) * 100)} %`)
+    .map((c) => `${c.label}: ${Math.round(comps[c.key] ?? 50)} · peso ${Math.round(((w[c.key] || 0) / sum) * 100)} %`)
     .join('\n') + `\nScore: ${Math.round(score)}`;
 }
 
@@ -713,7 +715,7 @@ function buildReport() {
       <td>${i + 1}</td>
       <td>${escHtml(c.name)}${c.flags.includes('low_data') ? ' ⚠' : ''}</td>
       <td><strong>${Math.round(score)}</strong></td>
-      ${COMPONENTS.map((k) => `<td>${c.components[k.key] ?? 50}</td>`).join('')}
+      ${COMPONENTS.map((k) => `<td>${Math.round(c.components[k.key] ?? 50)}</td>`).join('')}
       <td>${fmtEur(c.metrics.size_eur_12m)}</td>
       <td>${fmtPct(c.metrics.cagr_3y, true)}</td>
     </tr>`).join('');
@@ -723,7 +725,7 @@ function buildReport() {
       <div class="r-brand">Brújula Export</div>
       <h1>Informe de selección de mercados</h1>
       <p class="r-product"><strong>${escHtml(p.taric)}</strong> — ${escHtml(p.description)}</p>
-      <p class="r-meta">Fecha: ${today} · Fuente: ${escHtml(source)} · Ventana 12 m: ${fmtPeriod(p.period_window.from)} – ${fmtPeriod(p.period_window.to)}</p>
+      <p class="r-meta">Fecha: ${today} · Fuente: ${escHtml(source)} · Ventana 12 m: ${fmtPeriod(p.period_window?.from)} – ${fmtPeriod(p.period_window?.to)}</p>
     </header>
 
     <section>

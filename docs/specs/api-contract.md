@@ -29,7 +29,7 @@ Sin resultados: `{"results": [], "suggestion": "Prueba con 'vino' o un código c
 
 ## GET /api/score/{taric}
 
-404 si el TARIC no existe en nomenclatura. Si existe pero hay <5 países candidatos (export > 0 en últimos 3 años): 200 con `"warning"` y `countries` con lo que haya.
+404 si el TARIC no existe en nomenclatura. Si existe pero hay <5 países candidatos (export > 0 en últimos 3 años): 200 con `"warning"` y `countries` con lo que haya. Sin ningún candidato, `total_exports_12m` es `null` (nunca un 0 fabricado) y `period_window` puede ser `null` si la base no tiene datos de comercio.
 
 ```json
 {
@@ -63,7 +63,7 @@ Sin resultados: `{"results": [], "suggestion": "Prueba con 'vino' o un código c
 ```
 
 Reglas:
-- `components`: percentiles 0-100 entre los países candidatos de ESE producto (método: rank average / (n-1) × 100; si n=1 → 50). Métrica incalculable → componente **50** (neutro) + flag correspondiente (`nd_growth`, `nd_unit_value`, `nd_operators`, `nd_stability`).
+- `components`: percentiles 0-100 entre los países candidatos de ESE producto (método: rank average / (n-1) × 100; si n=1 → 50). Métrica incalculable → componente **50** (neutro) + flag correspondiente (`nd_size`, `nd_growth`, `nd_unit_value`, `nd_operators`, `nd_stability`). `nd_size` solo aparece cuando hay filas en la ventana 12m pero su suma es NULL (celdas ocultas); un país sin filas tiene tamaño 0 legítimo sin flag.
 - `cagr_3y`: CAGR sobre los valores ANUALES brutos del país; null si falta histórico (<3 años completos con valor > 0). Para el componente `growth`, el vector de CAGRs del conjunto candidato se winsoriza a p5-p95 antes del ranking percentil (modera crecimientos desde base mínima sin aplastar la señal de los mercados grandes; `metrics.cagr_3y` siempre muestra el bruto).
 - `stability_cv`: coeficiente de variación de los últimos 5 valores anuales (mínimo 3); el componente usa 1−percentil(cv).
 - `unit_value_rel`: €/kg del país / mediana de €/kg de candidatos (12m); null si kilos = 0.

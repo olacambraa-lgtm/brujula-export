@@ -299,3 +299,40 @@ def test_coef_variation_media_no_positiva():
     from app.metrics import coef_variation
     assert coef_variation([-100.0, -200.0, -300.0]) is None
     assert coef_variation([100.0, -100.0, 0.0]) is None  # media 0
+
+
+@pytest.fixture()
+def db_hidden_national(db_path, tmp_path):
+    """MA como candidato de 2204 con TODA la ventana 12m oculta (euros NULL)."""
+    import shutil
+    import duckdb
+    from datetime import date
+    path = tmp_path / "hidden_nat.duckdb"
+    shutil.copy(db_path, path)
+    con = duckdb.connect(str(path))
+    rows = [(date(2024, m, 1), "X", "MA", "Marruecos", "2204", None, 50.0, 10.0, True)
+            for m in range(1, 7)]                 # candidato: export > 0 en 3 años
+    rows += [(date(2025, 3 + i, 1) if 3 + i <= 12 else date(2026, i - 9, 1),
+              "X", "MA", "Marruecos", "2204", None, None, None, True)
+             for i in range(1, 13)]               # 2025-04 → 2026-03 todo oculto
+    con.executemany("INSERT INTO trade VALUES (?,?,?,?,?,?,?,?,?)", rows)
+    con.close()
+    return Database(str(path))
+
+
+def test_hidden_12m_size_is_null_neutral_flagged(db_hidden_national):
+    # Filas presentes con suma NULL → size null, componente 50 neutro, nd_size;
+    # un país SIN filas en la ventana sigue siendo 0 legítimo sin flag
+    r = score_product(db_hidden_national, "2204")
+    ma = next(c for c in r["countries"] if c["country_code"] == "MA")
+    assert ma["metrics"]["size_eur_12m"] is None
+    assert ma["components"]["size"] == 50.0
+    assert "nd_size" in ma["flags"]
+
+
+def test_yearly_all_hidden_year_is_null(db_hidden_national):
+    # Año con todos los meses ocultos → euros null en la serie anual, nunca 0
+    from app.metrics import market_detail
+    r = market_detail(db_hidden_national, "2204", "MA")
+    y2026 = next(y for y in r["yearly"] if y["year"] == 2026)
+    assert y2026["euros"] is None

@@ -14,7 +14,8 @@ Escribir "vino" en el buscador → seleccionar 2204.
 
 1. **Ranking:** "La herramienta puntúa cada destino de 0 a 100 combinando seis criterios: tamaño, crecimiento, estabilidad, valor unitario, espacio competitivo y accesibilidad. No es una caja negra: cada componente se ve aquí" (señalar barras apiladas).
 2. **Chips Aragón:** "Y esta es la capa que el panel público no da: qué cuota de esta exportación sale de Aragón y de Zaragoza."
-3. Clic en un país del top (p. ej. Reino Unido o Alemania): serie mensual ("los meses provisionales van marcados — datos 2024 en adelante pueden revisarse"), estacionalidad, valor unitario.
+3. Clic en un país del top — **Suiza** (nº 1 con datos reales: premium, 6,4 €/kg) o **Reino Unido** (clásico reconocible, visible casi sin scroll): serie mensual ("los meses provisionales van marcados — datos 2024 en adelante pueden revisarse"), estacionalidad, valor unitario.
+4. **Anticipar la pregunta inevitable:** Alemania y Francia (los gigantes) no están arriba porque caen en CAGR y van justos de €/kg — el ranking por defecto premia oportunidad, no tamaño actual. Si surge: "¿dónde está Alemania?" es el pie perfecto para el paso de los sliders: subir el peso de Tamaño y ver a los clásicos volver arriba. Convertir la objeción en demostración.
 4. Mencionar de pasada: "El €/kg como proxy de posicionamiento premium hay que leerlo con cuidado — mezcla granel y embotellado; por eso a 6 dígitos se afinaría más."
 
 ## 2. Los sliders: criterio del analista (2 min)

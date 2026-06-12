@@ -187,11 +187,14 @@ def search(db, q):
         ") t USING (taric) "
     )
     if q.isdigit():
-        rows = db.query(
+        numeric_sql = (
             base + "WHERE n.taric LIKE ? "
             "ORDER BY (n.taric = ?) DESC, n.level, t.total DESC NULLS LAST, n.taric "
-            "LIMIT 20",
-            (q + "%", q))
+            "LIMIT 20")
+        rows = db.query(numeric_sql, (q + "%", q))
+        if not rows and not q.startswith("0"):
+            # Excel come los ceros iniciales: '203' → reintento como '0203'
+            rows = db.query(numeric_sql, ("0" + q + "%", "0" + q))
     else:
         # Cada palabra de la consulta debe aparecer como prefijo de palabra en
         # la descripción, con stem ligero (quita plural y vocal de género): así
@@ -268,7 +271,7 @@ def score_product(db, taric):
     result = {
         "taric": taric,
         "description": description,
-        "total_exports_12m": 0.0,
+        "total_exports_12m": None,  # null sin candidatos: nunca un 0 fabricado
         "aragon_share": None,
         "zaragoza_share": None,
         "period_window": {"from": _ym(win["from_12m"]), "to": _ym(win["to"])} if win else None,
@@ -335,8 +338,10 @@ def score_product(db, taric):
     # --- métricas por país (CAGR sobre anuales brutos; ver winsorización abajo) ---
     sizes, cagrs, cvs, unit_values, eur_per_ops = [], [], [], [], []
     for c in codes:
-        euros_12m, kilos_12m = twelve.get(c, (None, None))
-        sizes.append(euros_12m or 0.0)
+        # Sin filas en la ventana → 0 legítimo (dejó de exportar); filas
+        # presentes con suma NULL (celdas ocultas) → None: neutro 50 + nd_size.
+        euros_12m, kilos_12m = twelve.get(c, (0.0, 0.0))
+        sizes.append(euros_12m)
         cagrs.append(cagr_3y([yearly.get((c, y)) for y in years3]))
         cvs.append(coef_variation([yearly.get((c, y)) for y in win["years5"]]))
         if euros_12m and kilos_12m:
@@ -374,6 +379,8 @@ def score_product(db, taric):
         flags = []
         if months_with_data.get(c, 0) < 12:
             flags.append("low_data")
+        if sizes[i] is None:
+            flags.append("nd_size")
         if cagrs[i] is None:
             flags.append("nd_growth")
         if cvs[i] is None:
@@ -439,22 +446,30 @@ def market_detail(db, taric, country_code):
     monthly = [{"period": _ym(p), "euros": e, "kilos": k, "is_provisional": bool(prov)}
                for p, e, k, prov in rows]
 
+    # Agregación anual con semántica SUM de SQL: los meses ocultos (NULL) no
+    # cuentan como 0, y un año con TODO oculto queda en euros null, nunca 0.
     yearly_acc = {}
     for p, e, k, _ in rows:
-        eu, ki = yearly_acc.get(p.year, (0.0, 0.0))
-        yearly_acc[p.year] = (eu + (e or 0.0), ki + (k or 0.0))
+        eu, ki = yearly_acc.get(p.year, (None, None))
+        if e is not None:
+            eu = (eu or 0.0) + e
+        if k is not None:
+            ki = (ki or 0.0) + k
+        yearly_acc[p.year] = (eu, ki)
     yearly = [{"year": y, "euros": eu, "kilos": ki,
-               "unit_value": eu / ki if ki else None}
+               "unit_value": eu / ki if eu is not None and ki else None}
               for y, (eu, ki) in sorted(yearly_acc.items())]
 
-    # estacionalidad: solo años completos (desde enero) y definitivos
+    # estacionalidad: solo años completos (desde enero) y definitivos; los
+    # meses ocultos (NULL) se excluyen en vez de computar como cuota 0
     prov_min = db.query(
         "SELECT min(period) FROM trade WHERE flow='X' AND is_provisional")[0][0]
     definitive_max = (prov_min.year - 1) if prov_min else win["years5"][-1]
     first_period = rows[0][0]
     by_year_month = {}
     for p, e, _, _ in rows:
-        by_year_month.setdefault(p.year, {})[p.month] = e or 0.0
+        if e is not None:
+            by_year_month.setdefault(p.year, {})[p.month] = e
     eligible = [y for y in sorted(by_year_month)
                 if y <= definitive_max and first_period <= date(y, 1, 1)
                 and sum(by_year_month[y].values()) > 0]

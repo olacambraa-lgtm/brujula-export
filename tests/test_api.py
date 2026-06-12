@@ -241,3 +241,9 @@ def test_search_token_is_word_prefix_not_substring(client):
     for q in ("vino", "vinos"):
         r = client.get("/api/search", params={"q": q})
         assert "2204" in [x["taric"] for x in r.json()["results"]], q
+
+
+def test_search_numeric_without_leading_zero(client):
+    # Excel come el cero inicial: '203' debe encontrar 0203 igualmente
+    r = client.get("/api/search", params={"q": "203"})
+    assert "0203" in [x["taric"] for x in r.json()["results"]]
