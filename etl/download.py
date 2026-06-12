@@ -83,9 +83,17 @@ def _log_failure(raw_dir, line):
 
 
 def download_api(raw_dir, months, email, password):
-    """Vía API: nacional + provincial Aragón, un JSON por mes y objetivo."""
-    token = dcx.login(email, password)
-    print(f"[api] sesión iniciada ({email})")
+    """Vía API: nacional + provincial Aragón, un JSON por mes y objetivo.
+
+    Si DATACOMEX_TOKEN está en el entorno (botón «Obtener Token» de la página
+    de ayuda de la API), se usa directamente sin pasar por IniciarSesion.
+    """
+    token = os.environ.get("DATACOMEX_TOKEN")
+    if token:
+        print("[api] usando token de DATACOMEX_TOKEN")
+    else:
+        token = dcx.login(email, password)
+        print(f"[api] sesión iniciada ({email})")
     calls = rows = skipped = failed = 0
 
     targets = [("nacional", None)] + [(f"prov{p}", p) for p in PROVINCES]
@@ -215,12 +223,14 @@ def main(argv=None):
 
     email = os.environ.get("DATACOMEX_EMAIL")
     password = os.environ.get("DATACOMEX_PASSWORD")
+    has_creds = bool((email and password) or os.environ.get("DATACOMEX_TOKEN"))
     mode = args.mode
     if mode == "auto":
-        mode = "api" if (email and password) else "csv"
+        mode = "api" if has_creds else "csv"
         print(f"[plan] modo auto → {mode}")
-    if mode == "api" and not (email and password):
-        sys.exit("mode=api requiere DATACOMEX_EMAIL y DATACOMEX_PASSWORD en el entorno")
+    if mode == "api" and not has_creds:
+        sys.exit("mode=api requiere DATACOMEX_EMAIL y DATACOMEX_PASSWORD "
+                 "(o DATACOMEX_TOKEN) en el entorno")
 
     if mode == "api":
         calls, rows, skipped, failed = download_api(RAW_DIR, months, email, password)
