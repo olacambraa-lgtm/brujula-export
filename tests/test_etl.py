@@ -308,3 +308,21 @@ def test_load_aborta_con_csvs_solapados(raw_dir, tmp_path):
     (raw_dir / "trade_csv" / "2025" / "star_99.csv").write_text(dup, encoding="latin-1")
     with pytest.raises(SystemExit, match="solape entre CSVs"):
         build_db(tmp_path / "out2.duckdb", raw_dir=raw_dir)
+
+
+def test_api_rows_euros_string_coma_decimal():
+    # La API real (verificado 2026-06-12) devuelve euros/kilos como strings
+    # con coma decimal y flujo con nombre completo
+    rec = {"flujo": "Exportación", "periodo": "Enero de 2026", "pais": "Francia",
+           "id_pais": "001", "prov": "Zaragoza", "id_prov": "50",
+           "taric": "2204", "euros": "126560,11", "kilos": "169874,5",
+           "mensaje": "dato provisional"}
+    row = api_rows(rec, "202601", "50", {})
+    assert row[6] == pytest.approx(126560.11)
+    assert row[7] == pytest.approx(169874.5)
+    assert row[8] is True          # 'dato provisional'
+    assert row[1] == "X"
+    # celda vacía u oculta → None, nunca 0
+    rec["euros"], rec["kilos"] = "", None
+    row = api_rows(rec, "202601", "50", {})
+    assert row[6] is None and row[7] is None

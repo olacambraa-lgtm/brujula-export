@@ -112,17 +112,30 @@ def login(email, password):
 
 
 def obtener_datos(f, pe, pa, ta, token, pr=None):
-    """GET ObtenerDatos. Devuelve la lista JSON o None si se excede el límite
-    de ~1M filas (la API responde null sin error). Con ta=AT4, pe debe ser UN
-    único periodo."""
-    params = {"access_token": token, "f": f, "pe": pe, "pa": pa, "ta": ta}
-    if pr is not None:
-        params["pr"] = pr
+    """GET ObtenerDatos. Devuelve la lista de registros o None si se excede el
+    límite de ~1M filas. Con ta=AT4, pe debe ser UN único periodo.
+
+    Comprobado empíricamente (2026-06-12): la respuesta viene envuelta en
+    {"Resultados": [...]}; el parámetro pr es OBLIGATORIO ('TOTAL' = nacional,
+    'ALL' = todas las provincias, '50' = una provincia); euros/kilos llegan
+    como strings con coma decimal; los errores de la API llegan como una fila
+    única con todos los campos null y el texto en 'mensaje'.
+    """
+    params = {"access_token": token, "f": f, "pe": pe, "pa": pa, "ta": ta,
+              "pr": pr if pr is not None else "TOTAL"}
     resp = _request("GET", f"{API_BASE}/ObtenerDatos", params=params)
     if resp.status_code == 401:
         raise PermissionError("Token DataComex no válido o caducado (401)")
     resp.raise_for_status()
-    return resp.json()  # list | None
+    data = resp.json()
+    if isinstance(data, dict):
+        data = data.get("Resultados")
+    if data is None:
+        return None
+    if (len(data) == 1 and data[0].get("id_pais") is None
+            and data[0].get("euros") is None and data[0].get("mensaje")):
+        raise RuntimeError(f"Error de la API DataComex: {data[0]['mensaje']}")
+    return data
 
 
 # ---------------------------------------------------------------------------

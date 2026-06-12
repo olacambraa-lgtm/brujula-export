@@ -136,6 +136,15 @@ def provisional_map(periodos):
             for p in periodos if p["Nivel"] == "2"}
 
 
+def _num(value):
+    """Número de la API: float directo, string con coma decimal, o vacío→None."""
+    if value is None or value == "":
+        return None
+    if isinstance(value, str):
+        return float(value.replace(".", "").replace(",", "."))
+    return float(value)
+
+
 def api_rows(record, period, province_code, prov_flags):
     """Mapea una fila JSON de ObtenerDatos al esquema de staging."""
     t4 = taric4(record.get("taric", ""))
@@ -157,8 +166,8 @@ def api_rows(record, period, province_code, prov_flags):
             str(record.get("pais", "")).strip(),
             t4,
             province_code,
-            record.get("euros"),
-            record.get("kilos"),
+            _num(record.get("euros")),
+            _num(record.get("kilos")),
             provisional)
 
 
