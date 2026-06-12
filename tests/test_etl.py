@@ -146,6 +146,8 @@ def raw_dir(tmp_path):
                 {"Periodo": "Febrero de 2024", "CodPeriodo": "202402", "Nivel": "2",
                  "DatosDefinitivos": True},
                 {"Periodo": "Marzo de 2025", "CodPeriodo": "202503", "Nivel": "2",
+                 "DatosDefinitivos": False},
+                {"Periodo": "Abril de 2025", "CodPeriodo": "202504", "Nivel": "2",
                  "DatosDefinitivos": False}]
     (masters / "periodos.json").write_text(json.dumps(periodos), encoding="utf-8")
     (masters / "provincias.json").write_text(
@@ -183,6 +185,8 @@ def raw_dir(tmp_path):
         '"E";"Exportación";"2024";"01";"D";"001";"Francia";"2204";"11111,00";"1,00";',
         '"E";"Exportación";"2025";"03";"P";"732";"Japón";"2204";"20,50";"2,00";',
         '"E";"Exportación";"2025";"03";"P";"000";"Total País";"2204";"77777,00";"7,00";',
+        # El portal marca 'D' meses que la maestra declara provisionales: manda la maestra
+        '"E";"Exportación";"2025";"04";"D";"732";"Japón";"2204";"30,00";"3,00";',
     ]) + "\r\n"
     (tmp_path / "trade_csv" / "2025").mkdir(parents=True)
     (tmp_path / "trade_csv" / "2025" / "22_00.csv").write_text(
@@ -223,6 +227,11 @@ def test_build_db_end_to_end(raw_dir, tmp_path):
     assert jp[0] == pytest.approx(20.5)
     assert jp[1] is True
     assert jp[2] == "Japón"
+
+    # CSV con flag 'D' en mes que la maestra declara provisional → provisional
+    # (verificado empíricamente: el CSV del portal marca 'D' incluso 2026)
+    assert con.execute("SELECT is_provisional FROM trade WHERE country_code='732' "
+                       "AND period='2025-04-01'").fetchone()[0] is True
 
     # API sin mensaje → flag de la maestra de periodos (202401 definitivo)
     assert con.execute("SELECT is_provisional FROM trade WHERE country_code='001' "

@@ -97,7 +97,7 @@ Para un producto TARIC dado, se calculan métricas por país destino sobre expor
 | Componente | Peso por defecto | Definición | Dirección |
 |---|---|---|---|
 | **Tamaño** | 25 % | Valor exportado (€) últimos 12 meses completos | ↑ mejor |
-| **Crecimiento** | 25 % | CAGR 3 años del valor anual (winsorizado p5-p95) | ↑ mejor |
+| **Crecimiento** | 25 % | CAGR 3 años del valor anual bruto (el vector de CAGRs del conjunto se winsoriza p5-p95 antes del ranking) | ↑ mejor |
 | **Estabilidad** | 15 % | 1 − coef. de variación de los valores anuales (5 años) | ↑ mejor |
 | **Valor unitario** | 15 % | €/kg últimos 12 m vs mediana de destinos (proxy de mercado premium) | ↑ mejor |
 | **Espacio competitivo** | 10 % | Valor medio por operador español (€/operador, último año con dato) | ↑ mejor |

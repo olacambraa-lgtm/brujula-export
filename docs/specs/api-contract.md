@@ -64,7 +64,7 @@ Sin resultados: `{"results": [], "suggestion": "Prueba con 'vino' o un código c
 
 Reglas:
 - `components`: percentiles 0-100 entre los países candidatos de ESE producto (método: rank average / (n-1) × 100; si n=1 → 50). Métrica incalculable → componente **50** (neutro) + flag correspondiente (`nd_growth`, `nd_unit_value`, `nd_operators`, `nd_stability`).
-- `cagr_3y`: sobre valores ANUALES winsorizados p5-p95 del conjunto candidato; null si falta histórico (<3 años completos con valor > 0).
+- `cagr_3y`: CAGR sobre los valores ANUALES brutos del país; null si falta histórico (<3 años completos con valor > 0). Para el componente `growth`, el vector de CAGRs del conjunto candidato se winsoriza a p5-p95 antes del ranking percentil (modera crecimientos desde base mínima sin aplastar la señal de los mercados grandes; `metrics.cagr_3y` siempre muestra el bruto).
 - `stability_cv`: coeficiente de variación de los últimos 5 valores anuales (mínimo 3); el componente usa 1−percentil(cv).
 - `unit_value_rel`: €/kg del país / mediana de €/kg de candidatos (12m); null si kilos = 0.
 - `access`: "UE" (componente 100), "EFTA/Acuerdo UE" (75), "Resto" (40). Tabla estática en `countries`.

@@ -323,17 +323,12 @@ def score_product(db, taric):
 
     years3 = win["years5"][-3:]
 
-    # --- winsorización p5-p95 del pool de valores anuales del conjunto ---
-    pool_keys = [(c, y) for c in codes for y in years3 if yearly.get((c, y)) is not None]
-    pool_w = winsorize([yearly[k] for k in pool_keys])
-    yearly_w = dict(zip(pool_keys, pool_w))
-
-    # --- métricas por país ---
+    # --- métricas por país (CAGR sobre anuales brutos; ver winsorización abajo) ---
     sizes, cagrs, cvs, unit_values, eur_per_ops = [], [], [], [], []
     for c in codes:
         euros_12m, kilos_12m = twelve.get(c, (None, None))
         sizes.append(euros_12m or 0.0)
-        cagrs.append(cagr_3y([yearly_w.get((c, y)) for y in years3]))
+        cagrs.append(cagr_3y([yearly.get((c, y)) for y in years3]))
         cvs.append(coef_variation([yearly.get((c, y)) for y in win["years5"]]))
         if euros_12m and kilos_12m:
             unit_values.append(euros_12m / kilos_12m)
@@ -348,7 +343,14 @@ def score_product(db, taric):
                for v in unit_values]
 
     comp_size = percentile_ranks(sizes)
-    comp_growth = percentile_ranks(cagrs)
+    # Winsorización p5-p95 del vector de CAGRs del conjunto candidato: modera
+    # crecimientos explosivos desde base mínima sin aplastar la señal de los
+    # mercados grandes (clamping de niveles ≠ clamping de tasas). El CAGR que
+    # se muestra en metrics es el bruto; el recortado solo alimenta el ranking.
+    not_null = [v for v in cagrs if v is not None]
+    clamped = iter(winsorize(not_null))
+    cagrs_rank = [next(clamped) if v is not None else None for v in cagrs]
+    comp_growth = percentile_ranks(cagrs_rank)
     comp_stability = [100 - p if cv is not None else 50.0
                       for cv, p in zip(cvs, percentile_ranks(cvs))]
     comp_uv = percentile_ranks(uv_rels)

@@ -199,7 +199,9 @@ def load_trade(con, raw_dir, prov_flags, included_codes):
                              None,
                              rec["euros"],
                              rec["kilos"],
-                             rec["is_provisional"]))
+                             # El portal marca 'D' incluso meses recientes
+                             # (verificado 2026-03): la maestra de periodos manda.
+                             rec["is_provisional"] or prov_flags.get(period, False)))
             staged += _stage_insert(con, rows)
 
     # Agregación a TARIC-4: SUM conserva NULL si todas las celdas son NULL.
