@@ -104,6 +104,29 @@ def load_countries_meta(meta_csv):
         return {r["datacomex_code"]: r for r in csv.DictReader(fh, delimiter=";")}
 
 
+def aeat_descriptions(masters_dir):
+    """Descripciones completas de la NC (AEAT) por código de 2 y 4 dígitos.
+
+    La maestra ObtenerTarics de DataComex trunca los nombres a ~30 caracteres;
+    el XLSX CN*_Structure de la AEAT (columnas CN y DM) trae el texto íntegro
+    en español. Devuelve {} si no hay fichero (el ETL funciona sin él).
+    """
+    matches = sorted(masters_dir.glob("CN*_Structure.xlsx"))
+    if not matches:
+        return {}
+    import openpyxl
+    ws = openpyxl.load_workbook(matches[-1], read_only=True).active
+    rows = ws.iter_rows(values_only=True)
+    header = {name: i for i, name in enumerate(next(rows))}
+    cn_i, dm_i = header["CN"], header["DM"]
+    out = {}
+    for r in rows:
+        code = str(r[cn_i] or "").replace(" ", "")
+        if code.isdigit() and len(code) in (2, 4) and r[dm_i]:
+            out[code] = str(r[dm_i]).strip()
+    return out
+
+
 def provisional_map(periodos):
     """CodPeriodo mensual → True si el periodo NO tiene datos definitivos."""
     return {p["CodPeriodo"]: not p["DatosDefinitivos"]
@@ -245,9 +268,13 @@ def build_db(db_path, raw_dir=RAW_DIR, meta_csv=META_CSV):
     con.executemany("INSERT INTO countries VALUES (?,?,?,?,?,?)", rows)
     included_codes = {r[0] for r in rows}
 
-    # --- nomenclature: niveles 2 y 4 dígitos (maestra Nivel 1 y 2) ---
+    # --- nomenclature: niveles 2 y 4 dígitos (maestra Nivel 1 y 2);
+    # descripción completa de la NC (AEAT) cuando existe, truncada si no ---
     LEVELS = {"1": 2, "2": 4}
-    nom = [(t["Taric"], clean_description(t["Taric"], t["Nombre"]), LEVELS[t["Nivel"]])
+    full_desc = aeat_descriptions(masters_dir)
+    nom = [(t["Taric"],
+            full_desc.get(t["Taric"]) or clean_description(t["Taric"], t["Nombre"]),
+            LEVELS[t["Nivel"]])
            for t in tarics if t["Nivel"] in LEVELS]
     con.executemany("INSERT INTO nomenclature VALUES (?,?,?)", nom)
 

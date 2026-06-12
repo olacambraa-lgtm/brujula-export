@@ -141,6 +141,16 @@ def raw_dir(tmp_path):
                for i in range(5000, 6300)]
     (masters / "tarics.json").write_text(json.dumps(tarics), encoding="utf-8")
 
+    # NC de la AEAT: descripciones completas (la maestra DataComex las trunca).
+    import openpyxl
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.append(("CNKEY", "CN", "NBDASH", "DASHES", "DM", "SU"))
+    ws.append(("220400000080", "2204", 0, "",
+               "Vino de uvas frescas, incluso encabezado; mosto de uva, excepto el de la partida 2009", ""))
+    ws.append(("220421000080", "2204 21 00", 2, "--", "En recipientes ≤ 2 l", "l"))
+    wb.save(masters / "CN2026_Structure.xlsx")
+
     periodos = [{"Periodo": "Enero de 2024", "CodPeriodo": "202401", "Nivel": "2",
                  "DatosDefinitivos": True},
                 {"Periodo": "Febrero de 2024", "CodPeriodo": "202402", "Nivel": "2",
@@ -228,6 +238,13 @@ def test_build_db_end_to_end(raw_dir, tmp_path):
     assert jp[1] is True
     assert jp[2] == "Japón"
 
+    # Nomenclatura: la descripción completa de la NC (AEAT) gana a la truncada
+    # de DataComex; los códigos sin entrada en la NC conservan la de DataComex
+    assert con.execute("SELECT description FROM nomenclature WHERE taric='2204'"
+                       ).fetchone()[0].startswith("Vino de uvas frescas, incluso encabezado; mosto")
+    assert con.execute("SELECT description FROM nomenclature WHERE taric='5000'"
+                       ).fetchone()[0] == "Producto 5000"
+
     # CSV con flag 'D' en mes que la maestra declara provisional → provisional
     # (verificado empíricamente: el CSV del portal marca 'D' incluso 2026)
     assert con.execute("SELECT is_provisional FROM trade WHERE country_code='732' "
@@ -242,11 +259,10 @@ def test_build_db_end_to_end(raw_dir, tmp_path):
     assert con.execute("SELECT euros FROM trade WHERE province_code='50'"
                        ).fetchone()[0] == pytest.approx(7.0)
 
-    # Nomenclatura: solo niveles 2 y 4 (longitud de código), descripción limpia
+    # Nomenclatura: solo niveles 2 y 4 (longitud de código); la descripción
+    # completa de la NC (AEAT) sustituye a la truncada de DataComex
     assert con.execute("SELECT DISTINCT level FROM nomenclature ORDER BY 1"
                        ).fetchall() == [(2,), (4,)]
-    assert con.execute("SELECT description FROM nomenclature WHERE taric='2204'"
-                       ).fetchone()[0] == "Vino de uvas frescas"
     assert con.execute("SELECT count(*) FROM nomenclature WHERE taric='220410'"
                        ).fetchone()[0] == 0
 

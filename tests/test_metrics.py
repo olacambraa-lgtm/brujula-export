@@ -251,3 +251,43 @@ def test_score_single_candidate_neutral(db):
 
 def test_score_unknown_taric(db):
     assert score_product(db, "9999") is None
+
+
+# --------------------------------------------------- celdas provinciales NULL
+# Hallazgo de la review: una provincia cuyas celdas 12m están TODAS ocultas por
+# secreto estadístico (euros NULL) producía TypeError → HTTP 500. La provincia
+# oculta debe desaparecer del desglose (n/d implícito), nunca romper ni
+# convertirse en 0 dentro de la serie.
+
+@pytest.fixture()
+def db_null_prov(db_path, tmp_path):
+    """Copia de la base de la fixture + filas provinciales con euros NULL."""
+    import shutil
+    import duckdb
+    path = tmp_path / "null_prov.duckdb"
+    shutil.copy(db_path, path)
+    con = duckdb.connect(str(path))
+    from datetime import date
+    rows = [(date(2025, 5, 1), "X", "FR", "Francia", "2204", "44", None, None, True),
+            (date(2025, 6, 1), "X", "FR", "Francia", "2204", "44", None, None, True)]
+    con.executemany("INSERT INTO trade VALUES (?,?,?,?,?,?,?,?,?)", rows)
+    con.close()
+    return Database(str(path))
+
+
+def test_score_product_with_hidden_provincial_cells(db_null_prov):
+    # Teruel (44) oculta por completo: no debe romper; las cuotas se calculan
+    # con las provincias visibles (50: 120, 22: 60 → aragon 180/5310)
+    r = score_product(db_null_prov, "2204")
+    assert r["aragon_share"] == pytest.approx(180 / 5310)
+    assert r["zaragoza_share"] == pytest.approx(120 / 5310)
+
+
+def test_market_detail_with_hidden_provincial_cells(db_null_prov):
+    from app.metrics import market_detail
+    r = market_detail(db_null_prov, "2204", "FR")
+    codes = [p["province_code"] for p in r["provinces"]]
+    assert "44" not in codes          # la oculta no aparece como 0 ni rompe
+    assert "50" in codes and "22" in codes
+    for p in r["provinces"]:
+        assert p["euros_12m"] is not None and p["share"] is not None

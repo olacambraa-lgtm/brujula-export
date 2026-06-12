@@ -308,9 +308,12 @@ def score_product(db, taric):
             "WHERE taric=? AND flow='X' ORDER BY year", (taric,)):
         if num is not None and num > 0:
             operators[code] = (num, euros)
+    # euros IS NOT NULL: una provincia con todas las celdas ocultas por secreto
+    # estadístico (suma NULL) desaparece del desglose en vez de romper la suma.
     provincial = {r[0]: r[1] for r in db.query(
         "SELECT province_code, sum(euros) FROM trade "
         "WHERE taric=? AND flow='X' AND province_code IS NOT NULL "
+        "AND euros IS NOT NULL "
         "AND period BETWEEN ? AND ? GROUP BY province_code",
         (taric, win["from_12m"], win["to"]))}
     meta = _country_meta(db)
@@ -472,9 +475,12 @@ def market_detail(db, taric, country_code):
         (taric, country_code, win["from_12m"], win["to"]))[0][0] or 0.0
 
     # desglose provincial del producto (12m): top 8 + Aragón siempre que tenga dato
+    # euros IS NOT NULL: una provincia con todas las celdas ocultas por secreto
+    # estadístico (suma NULL) se omite del desglose; nunca aparece como 0.
     prov_rows = db.query(
         "SELECT province_code, sum(euros) FROM trade "
         "WHERE taric=? AND flow='X' AND province_code IS NOT NULL "
+        "AND euros IS NOT NULL "
         "AND period BETWEEN ? AND ? GROUP BY province_code ORDER BY 2 DESC",
         (taric, win["from_12m"], win["to"]))
     selected = [r for r in prov_rows[:8]]
