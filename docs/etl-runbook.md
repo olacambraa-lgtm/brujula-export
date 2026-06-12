@@ -138,3 +138,17 @@ de `etl/load.py` es tolerante (flujo por inicial E/I, provisionalidad por
 `mensaje` con fallback a la maestra de periodos, `id_pais` con relleno de
 ceros), pero conviene revisar el primer `YYYYMM.json` descargado y ajustar
 `api_rows()` si algún nombre de campo difiere.
+
+## Salvaguardas añadidas tras la review (2026-06-12)
+
+- **Solapes CSV↔CSV**: `etl.load` aborta con mensaje claro si dos CSVs cubren la misma celda (periodo, flujo, país, taric4). Caso típico: `star_*.csv` (descarga acotada de productos estrella) + descarga completa posterior → eliminar los `star_*.csv` antes de recargar.
+- **CSV de 0 bytes**: la descarga escribe de forma atómica (`.tmp` + rename) y la carga aborta nombrando el fichero corrupto.
+- **Anti-stale reforzado**: la cadena CSV verifica que tarics Y periodos devueltos coinciden con lo pedido (la caché de sesión de CsvList puede devolver la consulta anterior).
+- **Reanudación con rango distinto**: cada directorio de año guarda un `months.json`; si el rango pedido cambia (p.ej. `--to auto` avanzó un mes), el año se vuelve a descargar entero.
+- **Mes API vacío (`[]`)**: no se persiste (se registra en `failed.log`) para no suprimir datos CSV del mismo mes en el dedup.
+- **Flag provisional**: la columna `periodo_provisional` del CSV del portal es inservible (marca 'D' incluso 2026); manda la maestra de periodos (`DatosDefinitivos`).
+
+## Limitaciones conocidas (decisión consciente, no bugs pendientes)
+
+- `size_eur_12m` y las series anuales tratan «sin filas» y «filas todas NULL» igual (0/omisión). En datos Comex reales no se ha observado ni una celda NULL en 526k filas (el secreto estadístico aplica al módulo Empresas, no al comercio declarado), así que no compensa la complejidad de distinguirlos. Si el módulo Empresas se integra algún día, revisar.
+- `_to_float` interpreta '1.234' (punto de miles sin coma) como 1.234. El CSV real siempre trae coma decimal; solo afectaría a un formato que el portal no emite.
