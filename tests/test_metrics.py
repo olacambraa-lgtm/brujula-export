@@ -291,3 +291,11 @@ def test_market_detail_with_hidden_provincial_cells(db_null_prov):
     assert "50" in codes and "22" in codes
     for p in r["provinces"]:
         assert p["euros_12m"] is not None and p["share"] is not None
+
+
+def test_coef_variation_media_no_positiva():
+    # Media negativa (devoluciones aduaneras) o cero → None, nunca un CV
+    # negativo que convierta al país más errático en el más "estable"
+    from app.metrics import coef_variation
+    assert coef_variation([-100.0, -200.0, -300.0]) is None
+    assert coef_variation([100.0, -100.0, 0.0]) is None  # media 0

@@ -9,8 +9,9 @@ import os
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.insights import load_insight
 from app.metrics import Database, get_meta, market_detail, score_product, search
@@ -28,6 +29,16 @@ def create_app():
             "Ejecuta ./run.sh (genera datos sintéticos de demo si faltan).")
     db = Database(db_path)
     app = FastAPI(title="Brújula Export", docs_url=None, redoc_url=None)
+
+    # Los errores por defecto de Starlette llegan en inglés ('Not Found'):
+    # el contrato exige mensajes en español también para rutas inexistentes.
+    DEFAULT_DETAILS = {"Not Found": "Recurso no encontrado",
+                       "Method Not Allowed": "Método no permitido"}
+
+    @app.exception_handler(StarletteHTTPException)
+    async def _detail_es(request, exc):
+        detail = DEFAULT_DETAILS.get(exc.detail, exc.detail)
+        return JSONResponse({"detail": detail}, status_code=exc.status_code)
 
     @app.get("/api/meta")
     def api_meta():

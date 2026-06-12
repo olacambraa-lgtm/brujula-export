@@ -96,7 +96,9 @@ def coef_variation(values):
     if len(vals) < 3:
         return None
     mean = sum(vals) / len(vals)
-    if mean == 0:
+    # Media no positiva (devoluciones aduaneras netas): el CV pierde sentido y
+    # uno negativo daría la mejor "estabilidad" al país más errático.
+    if mean <= 0:
         return None
     variance = sum((v - mean) ** 2 for v in vals) / len(vals)
     return sqrt(variance) / mean
@@ -157,8 +159,12 @@ def get_meta(db):
     n_products, n_countries = db.query(
         "SELECT count(DISTINCT taric), count(DISTINCT country_code) "
         "FROM trade WHERE flow='X'")[0]
+    try:
+        extracted = db.query("SELECT extracted_at FROM meta_info")[0][0].isoformat()
+    except Exception:  # DBs anteriores a la tabla meta_info (p.ej. sintético)
+        extracted = date.fromtimestamp(os.path.getmtime(db.path)).isoformat()
     return {
-        "extracted_at": date.fromtimestamp(os.path.getmtime(db.path)).isoformat(),
+        "extracted_at": extracted,
         "period_min": _ym(pmin) if pmin else None,
         "period_max": _ym(pmax) if pmax else None,
         "provisional_from": _ym(prov) if prov else None,

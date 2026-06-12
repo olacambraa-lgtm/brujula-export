@@ -298,3 +298,13 @@ def test_red_cadena_csv():
                                         countries=["001"]))
     assert rows and rows[0]["taric"] == "2204"
     assert all(r["country_code"] == "001" for r in rows)
+
+
+def test_load_aborta_con_csvs_solapados(raw_dir, tmp_path):
+    # La misma celda (2025-03, E, 732, 2204) en dos ficheros CSV → SystemExit,
+    # nunca suma silenciosa (hallazgo de la review: 20,50 € se convertía en 41 €)
+    dup = CSV_HEADER + "\r\n" + \
+        '"E";"Exportación";"2025";"03";"P";"732";"Japón";"2204";"20,50";"2,00";' + "\r\n"
+    (raw_dir / "trade_csv" / "2025" / "star_99.csv").write_text(dup, encoding="latin-1")
+    with pytest.raises(SystemExit, match="solape entre CSVs"):
+        build_db(tmp_path / "out2.duckdb", raw_dir=raw_dir)

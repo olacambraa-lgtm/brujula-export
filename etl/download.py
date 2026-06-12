@@ -116,6 +116,12 @@ def download_api(raw_dir, months, email, password):
                                           f"incluso con f=E/f=I por separado")
                     continue
                 data = parts
+            if not data:
+                # Un '[]' persistido se consideraría válido para siempre y
+                # suprimiría los datos CSV de ese mes en el dedup de load.
+                failed += 1
+                _log_failure(raw_dir, f"api {target} {pe} respuesta vacía ([])")
+                continue
             path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
             rows += len(data)
             print(f"[api] {target} {pe}: {len(data)} filas")
@@ -149,10 +155,19 @@ def download_csv(raw_dir, months, tarics):
     for year, year_months in sorted(by_year.items()):
         out_dir = raw_dir / "trade_csv" / year
         out_dir.mkdir(parents=True, exist_ok=True)
+        # Reanudar con otro conjunto de meses (p.ej. --to auto avanzó un mes)
+        # duplicaría el año en curso: si el manifiesto no coincide, se rehace.
+        manifest = out_dir / "months.json"
+        wanted = sorted(year_months)
+        if manifest.exists() and json.loads(manifest.read_text()) != wanted:
+            print(f"[csv] {year}: el rango de meses cambió; se descarta lo descargado")
+            for old in out_dir.glob("*.csv"):
+                old.unlink()
+        manifest.write_text(json.dumps(wanted))
         chunks = _chapter_chunks(tarics, len(year_months), n_countries)
         for chapter, idx, codes in chunks:
             path = out_dir / f"{chapter}_{idx:02d}.csv"
-            if path.exists():
+            if path.exists() and path.stat().st_size > 0:
                 skipped += 1
                 continue
             try:
@@ -173,7 +188,10 @@ def download_csv(raw_dir, months, tarics):
                     continue
             calls += 1
             n = len(dcx.parse_csv(text))
-            path.write_text(text, encoding="latin-1")
+            # Escritura atómica: nunca dejar un CSV parcial que bloquee la reanudación.
+            tmp = path.with_suffix(".csv.tmp")
+            tmp.write_text(text, encoding="latin-1")
+            tmp.rename(path)
             rows += n
             print(f"[csv] {year} cap.{chapter} trozo {idx} "
                   f"({len(codes)} códigos): {n} filas")

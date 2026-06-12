@@ -201,12 +201,26 @@ class CsvSession:
         text = csv_resp.content.decode("latin-1")
 
         # Anti-stale: CsvList cachea el último resultado VÁLIDO de la sesión.
-        # Verificamos que los tarics devueltos pertenecen a la selección.
+        # Verificamos que tarics Y periodos devueltos pertenecen a la selección
+        # (un CSV obsoleto puede repetir los mismos códigos con otros meses).
+        rows = parse_csv(text)
         expected = set(taric_codes) if taric_codes else {"Total Taric"}
-        got = {row["taric"] for row in parse_csv(text)}
+        got = {row["taric"] for row in rows}
         if got and not got <= expected:
             raise CsvChainError(f"CSV obsoleto de la caché de sesión: "
                                 f"tarics inesperados {sorted(got - expected)[:5]}")
+        expected_periods = set(periods)
+        bad_periods = set()
+        for r in rows:
+            code = (f"{r['year']}{r['month']:02d}" if r["month"] is not None
+                    else str(r["year"]))
+            # Un periodo anual solicitado ('2024') cubre sus filas mensuales.
+            if code not in expected_periods and str(r["year"]) not in expected_periods:
+                bad_periods.add(code)
+        if bad_periods:
+            raise CsvChainError(
+                f"CSV obsoleto de la caché de sesión: periodos inesperados "
+                f"{sorted(bad_periods)[:5]}")
         return text
 
 

@@ -64,6 +64,9 @@ CREATE TABLE countries (
   eu_member    BOOLEAN,
   access_tier  VARCHAR
 );
+CREATE TABLE meta_info (
+  extracted_at DATE NOT NULL
+);
 """
 
 STAGE_COLUMNS = ["period", "flow", "country_code", "country_name", "taric",
@@ -203,7 +206,14 @@ def load_trade(con, raw_dir, prov_flags, included_codes):
 
     csv_dir = raw_dir / "trade_csv"
     if csv_dir.is_dir():
+        # Dos CSVs que cubran la misma celda (periodo, flujo, país, taric4) se
+        # SUMARÍAN en la agregación duplicando valores en silencio: se aborta.
+        seen_csv_keys = {}
         for path in sorted(csv_dir.rglob("*.csv")):
+            if path.stat().st_size == 0:
+                raise SystemExit(f"[load] CSV vacío (descarga interrumpida): "
+                                 f"{path} — elimínalo y reanuda la descarga")
+            file_keys = set()
             rows = []
             for rec in parse_csv(path.read_text(encoding="latin-1")):
                 if rec["month"] is None:  # agregado anual: no es serie mensual
@@ -214,6 +224,14 @@ def load_trade(con, raw_dir, prov_flags, included_codes):
                 t4 = taric4(rec["taric"])
                 if t4 is None or rec["country_code"] not in included_codes:
                     continue
+                key = (period, rec["flow"], rec["country_code"], t4)
+                if key in seen_csv_keys:
+                    raise SystemExit(
+                        f"[load] solape entre CSVs: la celda {key} aparece en "
+                        f"{seen_csv_keys[key].name} y {path.name} — elimina el "
+                        f"conjunto redundante (p.ej. star_*.csv si ya hay "
+                        f"descarga completa) y vuelve a cargar")
+                file_keys.add(key)
                 rows.append((date(rec["year"], rec["month"], 1),
                              map_flow(rec["flow"]),
                              rec["country_code"],
@@ -225,6 +243,7 @@ def load_trade(con, raw_dir, prov_flags, included_codes):
                              # El portal marca 'D' incluso meses recientes
                              # (verificado 2026-03): la maestra de periodos manda.
                              rec["is_provisional"] or prov_flags.get(period, False)))
+            seen_csv_keys.update(dict.fromkeys(file_keys, path))
             staged += _stage_insert(con, rows)
 
     # Agregación a TARIC-4: SUM conserva NULL si todas las celdas son NULL.
@@ -251,6 +270,9 @@ def build_db(db_path, raw_dir=RAW_DIR, meta_csv=META_CSV):
         db_path.unlink()
     con = duckdb.connect(str(db_path))
     con.execute(SCHEMA)
+    # Fecha real de extracción (la carga se hace sobre el raw recién bajado);
+    # /api/meta la lee de aquí en vez de fiarse del mtime del fichero.
+    con.execute("INSERT INTO meta_info VALUES (current_date)")
 
     paises = json.loads((masters_dir / "paises.json").read_text(encoding="utf-8"))
     tarics = json.loads((masters_dir / "tarics.json").read_text(encoding="utf-8"))
