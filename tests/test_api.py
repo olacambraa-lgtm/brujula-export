@@ -91,6 +91,29 @@ def test_search_no_results_suggestion(client):
     assert isinstance(data["suggestion"], str) and data["suggestion"]
 
 
+# ------------------------------------------------------------------ chapter
+
+def test_chapter_index(client):
+    # El capítulo 22 lista sus subpartidas de 4 dígitos; 2204 (con datos) antes
+    # que 2205 (sin trade en el fixture → total null, al final).
+    r = client.get("/api/chapter/22")
+    assert r.status_code == 200
+    data = r.json()
+    assert data["code"] == "22"
+    assert data["level"] == 2
+    children = data["children"]
+    assert [c["taric"] for c in children] == ["2204", "2205"]
+    assert children[0]["has_data"] is True
+    assert children[0]["total_12m"] == pytest.approx(5310.0)
+    assert children[1]["has_data"] is False
+    assert children[1]["total_12m"] is None
+
+
+def test_chapter_not_found(client):
+    r = client.get("/api/chapter/99")
+    assert r.status_code == 404
+
+
 # ------------------------------------------------------------------- score
 
 def test_score_contract_shape(client):

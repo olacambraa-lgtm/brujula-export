@@ -14,7 +14,8 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.insights import load_insight
-from app.metrics import Database, get_meta, market_detail, score_product, search
+from app.metrics import (Database, chapter_index, get_meta, market_detail,
+                         score_product, search)
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 WEB_DIR = BASE_DIR / "web"
@@ -47,6 +48,13 @@ def create_app():
     @app.get("/api/search")
     def api_search(q: str = ""):
         return search(db, q)
+
+    @app.get("/api/chapter/{code}")
+    def api_chapter(code: str):
+        result = chapter_index(db, code)
+        if result is None:
+            raise HTTPException(404, "Capítulo no encontrado en la nomenclatura.")
+        return result
 
     @app.get("/api/score/{taric}")
     def api_score(taric: str):

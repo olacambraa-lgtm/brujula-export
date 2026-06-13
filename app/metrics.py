@@ -35,6 +35,15 @@ DISCLAIMER = ("Datos 2024 en adelante provisionales. "
               "Celdas con ≤5 operadores ocultas por secreto estadístico.")
 SEARCH_SUGGESTION = "Prueba con 'vino' o un código como 2204"
 
+# Filas de la nomenclatura que no son productos exportables y ensucian el
+# buscador: placeholders sin descripción real ('=====(literal pendiente…'),
+# agregados estadísticos de DataComex con letras en el código (XXSS tráfico
+# confidencial, XXCC correcciones, XXMM comercio intracomunitario) y el capítulo
+# 00 (comercio confidencial; no existe en la nomenclatura estándar). Se excluyen.
+_SEARCH_JUNK = ("n.description NOT LIKE '=%' "
+                "AND NOT regexp_matches(n.taric, '[A-Za-z]') "
+                "AND n.taric NOT LIKE '00%'")
+
 
 class Database:
     """Conexión DuckDB de solo lectura protegida con lock.
@@ -188,7 +197,7 @@ def search(db, q):
     )
     if q.isdigit():
         numeric_sql = (
-            base + "WHERE n.taric LIKE ? "
+            base + f"WHERE {_SEARCH_JUNK} AND n.taric LIKE ? "
             "ORDER BY (n.taric = ?) DESC, n.level, t.total DESC NULLS LAST, n.taric "
             "LIMIT 20")
         rows = db.query(numeric_sql, (q + "%", q))
@@ -212,7 +221,7 @@ def search(db, q):
         params = tuple("(^|[^a-z])" + re.escape(_stem(t)) for t in tokens) + \
             tuple("(^|[^a-z])" + re.escape(t) for t in tokens)
         rows = db.query(
-            base + f"WHERE {condition} "
+            base + f"WHERE {_SEARCH_JUNK} AND {condition} "
             f"ORDER BY ({relevance}) DESC, n.level, t.total DESC NULLS LAST, "
             "n.taric LIMIT 20",
             params)
@@ -224,6 +233,46 @@ def search(db, q):
     if not results:
         payload["suggestion"] = SEARCH_SUGGESTION
     return payload
+
+
+# ------------------------------------------------------------------ chapter
+
+def chapter_index(db, code):
+    """Índice de subpartidas (TARIC-4) de un capítulo (código de 2 dígitos).
+
+    Para un código que no apunta a un producto concreto (un capítulo), devuelve
+    sus subpartidas de 4 dígitos como referencia navegable, ordenadas por
+    exportación española de los últimos 12 meses (las sin datos al final).
+    None si el código no existe en la nomenclatura.
+    """
+    nomen = db.query(
+        "SELECT description, level FROM nomenclature WHERE taric = ?", (code,))
+    if not nomen:
+        return None
+    description, level = nomen[0]
+    win = _windows(db)
+    if win:
+        window_sql = "AND period BETWEEN ? AND ? "
+        params = [win["from_12m"], win["to"], code + "%"]
+    else:
+        window_sql = ""
+        params = [code + "%"]
+    rows = db.query(
+        "SELECT n.taric, n.description, t.total "
+        "FROM nomenclature n LEFT JOIN ("
+        "  SELECT taric, sum(euros) AS total FROM trade "
+        f"  WHERE flow='X' AND province_code IS NULL {window_sql}GROUP BY taric"
+        ") t USING (taric) "
+        f"WHERE n.level = 4 AND n.taric LIKE ? AND {_SEARCH_JUNK} "
+        "ORDER BY t.total DESC NULLS LAST, n.taric",
+        params)
+    children = [
+        {"taric": r[0], "description": r[1],
+         "total_12m": r[2], "has_data": r[2] is not None}
+        for r in rows
+    ]
+    return {"code": code, "description": description, "level": level,
+            "children": children}
 
 
 # ------------------------------------------------------------------- score

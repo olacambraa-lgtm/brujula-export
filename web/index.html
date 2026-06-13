@@ -30,8 +30,10 @@
         <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       </svg>
       <input id="search-input" type="text" autocomplete="off" spellcheck="false"
-             placeholder="Busca un producto: «vino», «2204»…" aria-label="Buscar producto por nombre o código TARIC">
-      <div id="search-results" class="search-results" hidden></div>
+             role="combobox" aria-expanded="false" aria-controls="search-results" aria-autocomplete="list"
+             placeholder="Producto o TARIC…" aria-label="Buscar producto por nombre o código TARIC">
+      <div id="search-results" class="search-results" role="listbox" aria-label="Resultados de búsqueda" hidden></div>
+      <div id="search-status" class="sr-only" aria-live="polite"></div>
     </div>
 
     <div id="meta-badge" class="meta-badge" hidden></div>
@@ -75,26 +77,28 @@
           </div>
           <div class="product-stats">
             <div class="stat">
-              <span class="stat-label">Export. España 12 m</span>
+              <span class="stat-label" title="Exportación española total del producto en los últimos 12 meses completos">Export. España 12 m</span>
               <span id="stat-total" class="stat-value"></span>
             </div>
             <div class="stat">
-              <span class="stat-label">Ventana</span>
+              <span class="stat-label" title="Periodo de 12 meses completos sobre el que se calculan tamaño y cuotas">Ventana 12 m</span>
               <span id="stat-window" class="stat-value stat-small"></span>
             </div>
             <div class="stat">
               <span class="stat-label">Países candidatos</span>
               <span id="stat-candidates" class="stat-value"></span>
             </div>
-            <span id="chip-aragon" class="chip-accent" title="Cuota de Aragón (Zaragoza + Huesca + Teruel) sobre la exportación nacional del producto, últimos 12 meses"></span>
-            <span id="chip-zaragoza" class="chip-accent" title="Cuota de la provincia de Zaragoza sobre la exportación nacional del producto, últimos 12 meses"></span>
+            <span class="product-chips">
+              <span id="chip-aragon" class="chip-accent" title="Cuota de Aragón (Zaragoza + Huesca + Teruel) sobre la exportación nacional del producto, últimos 12 meses"></span>
+              <span id="chip-zaragoza" class="chip-accent" title="Cuota de la provincia de Zaragoza sobre la exportación nacional del producto, últimos 12 meses"></span>
+            </span>
           </div>
           <div id="product-warning" class="warning" hidden></div>
           <button id="btn-report" class="btn btn-primary">Generar informe</button>
         </div>
 
         <details id="weights-panel" class="card weights-card">
-          <summary>Ajustar criterios <span class="hint">pesos del score · el ranking se reordena al instante</span></summary>
+          <summary>Ajustar criterios <span class="hint">se reordena al instante · pasa el cursor por cada criterio para ver su efecto</span></summary>
           <div class="sliders" id="sliders"></div>
           <button id="btn-reset-weights" class="btn btn-ghost">Restablecer pesos</button>
         </details>
@@ -106,14 +110,31 @@
                 <th>#</th>
                 <th>País</th>
                 <th>Score</th>
-                <th>Desglose</th>
+                <th title="Contribución de cada criterio al score (color = componente; pasa el cursor para el detalle)">Desglose</th>
                 <th class="num">Export. 12 m</th>
-                <th class="num">CAGR 3a</th>
+                <th class="num" title="Tasa de crecimiento anual compuesto a 3 años del valor exportado">CAGR 3a</th>
                 <th class="num">€/kg</th>
               </tr>
             </thead>
             <tbody id="ranking-body"></tbody>
           </table>
+        </div>
+      </div>
+
+      <div id="chapter-view" hidden>
+        <div class="card chapter-header">
+          <div class="chapter-id">
+            <span id="chapter-code" class="code-chip"></span>
+            <div class="chapter-title">
+              <span class="chapter-kicker">Índice del capítulo</span>
+              <h2 id="chapter-desc"></h2>
+            </div>
+          </div>
+          <p class="chapter-lead">Este código agrupa varias subpartidas. Elige una de 4 dígitos para ver su ranking de mercados.</p>
+          <span id="chapter-count" class="chapter-count"></span>
+        </div>
+        <div class="card chapter-list">
+          <div id="chapter-index"></div>
         </div>
       </div>
     </section>
@@ -126,7 +147,7 @@
           <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.4"/>
           <path d="M3 12h18M12 3c2.7 2.6 4 5.6 4 9s-1.3 6.4-4 9c-2.7-2.6-4-5.6-4-9s1.3-6.4 4-9Z" stroke="currentColor" stroke-width="1.2"/>
         </svg>
-        <p>Selecciona un país del ranking para ver su ficha de mercado: evolución, estacionalidad, valor unitario, provincias y operadores.</p>
+        <p>Selecciona un país del ranking para ver su ficha de mercado: evolución, estacionalidad, valor unitario y provincias.</p>
       </div>
 
       <div id="country-loading" class="card placeholder" hidden>
@@ -169,22 +190,12 @@
             <p id="prov-empty" class="empty-note" hidden>Sin desglose provincial para este destino.</p>
           </div>
         </div>
-
-        <div class="card" id="operators-card">
-          <h3>Operadores españoles por año <span class="hint">empresas exportadoras al destino</span></h3>
-          <table class="mini-table">
-            <thead>
-              <tr><th>Año</th><th class="num">Exportadores</th><th class="num">Valor</th></tr>
-            </thead>
-            <tbody id="operators-body"></tbody>
-          </table>
-        </div>
       </div>
 
       <div id="insights-panel" class="card insights" hidden>
         <div class="insights-head">
           <h3>Análisis del analista (IA)</h3>
-          <span class="ia-badge">Generado con IA · revisado por el analista</span>
+          <span class="ia-badge" title="Comentario redactado por IA sobre los datos del panel y revisado por el analista; sin llamadas a IA en tiempo de ejecución (coste marginal cero, 100% offline).">Generado con IA · revisado por el analista</span>
         </div>
         <div id="insights-body" class="md"></div>
         <p id="insights-date" class="hint"></p>
@@ -193,7 +204,7 @@
   </main>
 </div>
 
-<div id="toast" class="toast" role="status" hidden></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <!-- Vista informe (solo impresión) -->
 <section id="report" class="report" aria-hidden="true"></section>
