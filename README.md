@@ -2,7 +2,7 @@
 
 **Selección de mercados de exportación con datos oficiales DataComex — 100 % local, sin APIs de pago.**
 
-Escribes un producto (texto o código TARIC) y obtienes al instante un ranking de países objetivo con scoring multicriterio transparente, fichas de mercado por país, la cuota de Aragón/Zaragoza en esa exportación y análisis ejecutivos generados con IA (pregenerados con Claude Code; cero tokens en runtime).
+Escribes un producto (texto o código TARIC) y obtienes al instante un ranking de países objetivo con scoring multicriterio transparente, fichas de mercado por país y la cuota de Aragón/Zaragoza en esa exportación. Genera además un informe imprimible con un resumen ejecutivo determinista (top-5 mercados y cifras clave), copiable para usarlo como contexto en una IA externa — sin llamadas a IA en runtime.
 
 Demo construida para la Cámara de Comercio de Zaragoza. Pregunta a la que responde: *¿dónde debería exportar este producto?*
 
@@ -21,7 +21,6 @@ Si no existe `data/brujula.duckdb`, `run.sh` genera un dataset sintético de dem
 | `etl/` | Descarga DataComex (API oficial con token, o cadena CSV pública) y construye `data/brujula.duckdb` |
 | `app/` | FastAPI: motor de scoring (SQL DuckDB + percentiles) y endpoints del [contrato](docs/specs/api-contract.md) |
 | `web/` | SPA sin build step (vanilla JS + ECharts vendorizado) — funciona offline |
-| `insights/` | Análisis ejecutivos por TARIC (markdown), pregenerados con Claude Code |
 | `tests/` | pytest: métricas con valores calculados a mano, API y ETL |
 
 Decisiones de arquitectura en `docs/adr/`. Spec completa en `docs/specs/2026-06-11-brujula-export-design.md`.
@@ -51,7 +50,7 @@ Detalle completo (tiempos, validaciones, vía CSV sin cuenta): `docs/etl-runbook
 
 ## Demo
 
-Guion de 10-12 minutos en `docs/demo-guion.md`. Antes de la reunión: ejecutar el ETL real, regenerar los insights de `insights/`, ensayar el guion y probar «Generar informe» con Cmd+P.
+Guion de 10-12 minutos en `docs/demo-guion.md`. Antes de la reunión: ejecutar el ETL real, ensayar el guion y probar «Generar informe» / «Copiar resumen» con Cmd+P.
 
 ## Fuente y reutilización
 

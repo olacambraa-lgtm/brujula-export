@@ -2,6 +2,8 @@
 
 **Fecha:** 2026-06-11 · **Autor:** Oscar Lacambra (con Claude Code) · **Estado:** Aprobada (Gate 2)
 
+> **Nota 2026-06-16 (iteración de auditoría UX/UI):** la feature de **análisis IA pregenerado** (`insights/`, `/api/insights`, panel "Análisis del analista") se **eliminó** — ver [ADR-005](../adr/ADR-005-eliminar-insights.md) y `docs/specs/2026-06-16-auditoria-ux-iteracion.md`. El análisis se traslada a un **resumen ejecutivo determinista** dentro del informe imprimible (copiable para una IA externa). Las menciones a insights más abajo quedan como registro histórico del diseño original.
+
 ## 1. Problema y objetivo
 
 **Problema en una frase:** la Cámara de Comercio de Zaragoza ofrece "Selección de mercados" como servicio premium de consultoría a medida (semanas, "según presupuesto"); no existe una herramienta que responda al instante, con datos oficiales y metodología transparente, la pregunta *"¿dónde debería exportar este producto?"*.
@@ -34,15 +36,13 @@ brujula-export/
 │   └── nomenclature.py carga NC/TARIC con descripciones en español
 ├── app/            Backend FastAPI (sirve API + frontend estático)
 │   ├── main.py         endpoints + static files
-│   ├── metrics.py      motor de scoring (SQL DuckDB + normalización en Python)
-│   └── insights.py     carga insights pregenerados (insights/*.md|json)
+│   └── metrics.py      motor de scoring (SQL DuckDB + normalización en Python)
 ├── web/            Frontend SPA sin build step (HTML+CSS+JS vanilla + ECharts vendorizado)
-├── insights/       Análisis ejecutivos pregenerados con Claude (por TARIC)
 ├── data/           brujula.duckdb + raw/ (gitignored)
 └── tests/          pytest: métricas, API, integración
 ```
 
-**Decisiones (ADRs en docs/adr/):** DuckDB embebido (ADR-001), frontend sin build step con ECharts local (ADR-002), scoring por percentiles con pesos ajustables (ADR-003), insights IA pregenerados — cero tokens en runtime (ADR-004).
+**Decisiones (ADRs en docs/adr/):** DuckDB embebido (ADR-001), frontend sin build step con ECharts local (ADR-002), scoring por percentiles con pesos ajustables (ADR-003), insights IA pregenerados — cero tokens en runtime (ADR-004, *superseded por ADR-005: insights eliminados; el análisis pasa al resumen ejecutivo del informe*).
 
 ## 4. Modelo de datos (DuckDB)
 
@@ -114,7 +114,6 @@ Para un producto TARIC dado, se calculan métricas por país destino sobre expor
 | `GET /api/search?q=vino` | Lista de códigos TARIC coincidentes por texto (búsqueda en descripción, acentos normalizados) o por prefijo numérico |
 | `GET /api/score/{taric}` | Por país: componentes de score, métricas brutas, flags; + metadatos del producto (descripción, total exportado, cuota Aragón) |
 | `GET /api/market/{taric}/{country}` | Ficha país: serie mensual (con flag provisional), serie anual, estacionalidad media por mes, valor unitario, operadores por año, desglose provincial (top + Aragón) |
-| `GET /api/insights/{taric}` | Análisis IA pregenerado (markdown) si existe, si no 404 |
 | `GET /api/meta` | Rango temporal de los datos, fecha de extracción, recuentos, disclaimer metodológico |
 | `GET /` | Frontend estático |
 
