@@ -41,12 +41,6 @@ function fmtPeriod(p) {
   return MONTHS[+m - 1] + ' ' + y;
 }
 
-// "2026-06-12" → "12 de junio de 2026"
-function fmtDateISO(iso) {
-  const d = new Date(iso + 'T00:00:00');
-  return isNaN(d) ? iso : d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-}
-
 function flagEmoji(iso2) {
   if (!iso2 || !/^[A-Za-z]{2}$/.test(iso2)) return '🌐';
   return String.fromCodePoint(...[...iso2.toUpperCase()].map((c) => 0x1F1E6 + c.charCodeAt(0) - 65));
@@ -273,8 +267,6 @@ async function loadProduct(taric) {
 
   $('#left-skeleton').hidden = true;
   $('#product-view').hidden = false;
-
-  loadInsights(taric);
 }
 
 function renderProductHeader() {
@@ -548,7 +540,6 @@ function resetCountryPanel() {
   $('#country-panel').hidden = true;
   $('#country-loading').hidden = true;
   $('#country-placeholder').hidden = false;
-  $('#insights-panel').hidden = true;
 }
 
 async function selectCountry(cc) {
@@ -802,50 +793,6 @@ function renderProvincesChart(provinces) {
       },
     }],
   }, true);
-}
-
-/* ============================== Insights IA ============================== */
-
-async function loadInsights(taric) {
-  const panel = $('#insights-panel');
-  panel.hidden = true;
-  let data = null;
-  try {
-    data = await api('/api/insights/' + encodeURIComponent(taric), { allow404: true });
-  } catch {
-    return;
-  }
-  if (!data || !state.product || state.product.taric !== taric) return;
-  $('#insights-body').innerHTML = renderMarkdown(data.markdown || '');
-  $('#insights-date').textContent = data.generated_at ? 'Generado el ' + fmtDateISO(data.generated_at) : '';
-  panel.hidden = false;
-}
-
-// Mini-renderer de markdown: #/##/###, **negrita**, *cursiva*, listas con - o *, párrafos.
-function renderMarkdown(md) {
-  const inline = (s) => escHtml(s)
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/(?<!\*)\*(?!\s)([^*\n]+?)(?<!\s)\*(?!\*)/g, '<em>$1</em>');
-
-  const out = [];
-  let list = null;
-  let para = [];
-  const flushPara = () => { if (para.length) { out.push('<p>' + inline(para.join(' ')) + '</p>'); para = []; } };
-  const flushList = () => { if (list) { out.push('<ul>' + list.map((i) => '<li>' + inline(i) + '</li>').join('') + '</ul>'); list = null; } };
-
-  for (const raw of md.split('\n')) {
-    const line = raw.trim();
-    const h = line.match(/^(#{1,3})\s+(.*)$/);
-    if (h) { flushPara(); flushList(); out.push(`<h${h[1].length}>${inline(h[2])}</h${h[1].length}>`); continue; }
-    const li = line.match(/^[-*]\s+(.*)$/);
-    if (li) { flushPara(); if (!list) list = []; list.push(li[1]); continue; }
-    if (!line) { flushPara(); flushList(); continue; }
-    flushList();
-    para.push(line);
-  }
-  flushPara();
-  flushList();
-  return out.join('\n');
 }
 
 /* ============================== Informe imprimible ============================== */
