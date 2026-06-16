@@ -368,6 +368,25 @@ function renderChapterIndex(d) {
 
 /* ============================== Sliders de pesos ============================== */
 
+// Salidas de los sliders por criterio, para refrescar todas a la vez.
+const sliderOutputs = {};
+
+// El score solo depende de los pesos RELATIVOS (Σ w_i·c_i / Σ w_i). El número
+// que ve el usuario es ese peso efectivo normalizado a 100 %: al subir un slider,
+// el % mostrado de los demás baja, y el conjunto suma ~100 % (§2.5). El valor del
+// mando (0-50) sigue siendo la palanca de intención.
+function refreshWeightLabels() {
+  const sum = COMPONENTS.reduce((s, c) => s + (state.weights[c.key] || 0), 0);
+  for (const c of COMPONENTS) {
+    const out = sliderOutputs[c.key];
+    if (!out) continue;
+    const text = sum > 0 ? Math.round((state.weights[c.key] || 0) / sum * 100) + ' %' : '—';
+    out.textContent = text;
+    const input = out.closest('.slider')?.querySelector('input');
+    if (input) input.setAttribute('aria-valuetext', `peso efectivo ${text}`);
+  }
+}
+
 function renderSliders() {
   const wrap = $('#sliders');
   wrap.innerHTML = '';
@@ -376,19 +395,19 @@ function renderSliders() {
     const label = document.createElement('label');
     label.className = 'slider';
     label.innerHTML = `
-      <span class="slider-head"><span class="dot" style="background:${c.color}"></span>${c.label}<output>${val} %</output></span>
-      <input type="range" min="0" max="50" step="1" value="${val}" aria-valuetext="${val} %" aria-label="Peso de ${c.label}" aria-describedby="tip-${c.key}">
+      <span class="slider-head"><span class="dot" style="background:${c.color}"></span>${c.label}<output></output></span>
+      <input type="range" min="0" max="50" step="1" value="${val}" aria-label="Peso de ${c.label}" aria-describedby="tip-${c.key}">
       <span class="slider-tip" id="tip-${c.key}" role="tooltip" style="border-left-color:${c.color}">${c.tip}</span>`;
     const input = label.querySelector('input');
-    const out = label.querySelector('output');
+    sliderOutputs[c.key] = label.querySelector('output');
     input.addEventListener('input', () => {
       state.weights[c.key] = input.value / 100;
-      out.textContent = input.value + ' %';
-      input.setAttribute('aria-valuetext', input.value + ' %');
+      refreshWeightLabels();
       updateRanking(true);
     });
     wrap.appendChild(label);
   }
+  refreshWeightLabels();
 }
 
 function bindWeightsReset() {
