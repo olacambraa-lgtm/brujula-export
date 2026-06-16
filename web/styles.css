@@ -369,6 +369,16 @@ td.country .flag { margin-right: 7px; }
   border: 1px solid var(--line-strong); border-radius: 99px;
   padding: 0 5px; margin-left: 6px; cursor: help;
 }
+.flag-stale, .flag-small {
+  font-size: 10px; font-weight: 600; white-space: nowrap;
+  border-radius: 99px; padding: 0 6px; margin-left: 6px; cursor: help;
+}
+.flag-stale { color: var(--amber-ink); background: var(--amber-soft); border: 1px solid rgba(201,168,76,.35); }
+.flag-small { color: var(--muted); border: 1px solid var(--line-strong); }
+td.num.uv-outlier {
+  color: var(--amber-ink); cursor: help;
+  text-decoration: underline dotted; text-underline-offset: 2px;
+}
 td.score { width: 104px; }
 .score-wrap { display: flex; align-items: center; gap: 8px; }
 .score-num {
@@ -393,6 +403,21 @@ td.comps { width: 104px; }
 
 .cagr-pos { color: var(--pos); font-weight: 700; font-family: ui-monospace, monospace; }
 .cagr-neg { color: var(--neg); font-weight: 700; font-family: ui-monospace, monospace; }
+
+/* Leyenda de colores del desglose (color → criterio) */
+.comps-legend {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 5px 14px;
+  padding: 8px 14px 4px;
+}
+.comps-legend .cl-title {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--faint);
+}
+.comps-legend .cl-item {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; color: var(--muted);
+}
+.comps-legend .cl-item i { width: 9px; height: 9px; border-radius: 2px; flex: none; }
 
 /* ──────────── Índice de capítulo ──────────── */
 .chapter-header {

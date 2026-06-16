@@ -34,6 +34,14 @@ function fmtUnitValue(v) {
   return (v == null || !isFinite(v)) ? 'n/d' : nf2.format(v);
 }
 
+// CAGR con tope visual: por encima de +500% el porcentaje (artefacto de base
+// mínima) satura la lectura; mostramos ">+500 %" y dejamos el valor real en el
+// title de la celda (§2.4). El cálculo del ranking ya winsoriza aparte.
+function fmtCagr(v) {
+  if (v != null && isFinite(v) && v > 5) return '>+500 %';
+  return fmtPct(v, true);
+}
+
 // "2026-03" → "mar 2026"
 function fmtPeriod(p) {
   if (!p) return 'n/d';
@@ -295,10 +303,22 @@ function renderProductHeader() {
   $('#ranking-card').hidden = !hasData;
   $('#weights-panel').hidden = !hasData;
   $('#btn-report').hidden = !hasData;
+  renderCompsLegend(hasData);
 
   $('#country-placeholder').querySelector('p').textContent = hasData
     ? 'Selecciona un país del ranking para ver su ficha de mercado: evolución, estacionalidad, valor unitario y provincias.'
     : 'Sin ranking disponible para este producto: no hay países con histórico suficiente.';
+}
+
+// Leyenda fija de colores del desglose: mapea cada color a su criterio para que
+// la columna «Desglose» sea interpretable sin depender solo del hover (§5.1, §7.3).
+function renderCompsLegend(show) {
+  const el = $('#comps-legend');
+  if (!el) return;
+  el.hidden = !show;
+  if (!show) return;
+  el.innerHTML = '<span class="cl-title">Desglose</span>' + COMPONENTS.map((c) =>
+    `<span class="cl-item"><i style="background:${c.color}"></i>${escHtml(c.label)}</span>`).join('');
 }
 
 /* ============================== Índice de capítulo ============================== */
@@ -461,16 +481,34 @@ function buildRankingRows() {
       ? `<span class="flag-nd" title="Sin dato (componente neutro 50): ${escHtml(nd.join(', '))}">n/d</span>`
       : '';
 
+    // Señalización de calidad de datos (NO altera el score; solo avisa, §2.1-2.3):
+    const size = c.metrics.size_eur_12m;
+    const k = c.components;
+    let baseTag = '';
+    if (size === 0) {
+      baseTag = '<span class="flag-stale" title="Candidato (exportó en los últimos 3 años) pero 0 € en los últimos 12 meses: sin exportación reciente.">sin export. reciente</span>';
+    } else if (k.size < 25 && (k.growth > 75 || k.unit_value > 75)) {
+      baseTag = '<span class="flag-small" title="Base reducida: su crecimiento o €/kg —altos sobre una base pequeña— lo impulsan en el ranking. Léelo como oportunidad volátil, no como tamaño.">base reducida</span>';
+    }
+
+    const cagr = c.metrics.cagr_3y;
+    const cagrCapped = cagr != null && isFinite(cagr) && cagr > 5;
+    const cagrCell = `<td class="num ${cagrClass(cagr)}"${cagrCapped ? ` title="CAGR real: ${fmtPct(cagr, true)}"` : ''}>${fmtCagr(cagr)}</td>`;
+
+    const uvRel = c.metrics.unit_value_rel;
+    const uvOutlier = uvRel != null && isFinite(uvRel) && uvRel > 5;
+    const uvCell = `<td class="num${uvOutlier ? ' uv-outlier' : ''}"${uvOutlier ? ' title="Valor unitario atípico (>5× la mediana de destinos): probable artefacto de un envío marginal que distorsiona el criterio de valor unitario."' : ''}>${fmtUnitValue(c.metrics.unit_value_eur_kg)}</td>`;
+
     tr.innerHTML = `
       <td class="pos"></td>
       <td class="country" title="${escHtml(c.name)} · ${escHtml(c.region || '')}">
-        <span class="flag">${flagEmoji(c.iso2)}</span><span class="cname">${escHtml(c.name)}</span>${lowData}${ndTag}
+        <span class="flag">${flagEmoji(c.iso2)}</span><span class="cname">${escHtml(c.name)}</span>${lowData}${ndTag}${baseTag}
       </td>
       <td class="score"><div class="score-wrap"><span class="score-num"></span><span class="score-bar"><i></i></span></div></td>
       <td class="comps"><span class="stack"></span></td>
       <td class="num">${fmtEur(c.metrics.size_eur_12m)}</td>
-      <td class="num ${cagrClass(c.metrics.cagr_3y)}">${fmtPct(c.metrics.cagr_3y, true)}</td>
-      <td class="num">${fmtUnitValue(c.metrics.unit_value_eur_kg)}</td>`;
+      ${cagrCell}
+      ${uvCell}`;
 
     tr.tabIndex = 0;
     tr.setAttribute('role', 'button');
