@@ -360,9 +360,12 @@ td.pos {
   color: var(--faint); font-weight: 700; width: 32px;
   font-family: ui-monospace, Menlo, monospace;
 }
-td.country { white-space: nowrap; max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
+td.country { white-space: nowrap; }
 td.country .flag { margin-right: 7px; }
-.cname { font-weight: 600; color: var(--ink-strong); }
+/* Solo el nombre se trunca; los badges (⚠, n/d, base reducida, sin export.) van
+   después y siempre quedan visibles (antes los recortaba el overflow del td). */
+.cname { font-weight: 600; color: var(--ink-strong);
+  display: inline-block; max-width: 120px; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
 .flag-warn { color: var(--amber-ink); margin-left: 6px; cursor: help; }
 .flag-nd {
   font-size: 10px; color: var(--faint);
@@ -550,13 +553,13 @@ td.comps { width: 104px; }
   .topbar { flex-wrap: wrap; row-gap: 8px; }
   .search-box { order: 3; flex-basis: 100%; max-width: none; margin: 0; }
   .meta-badge { margin-left: auto; }
-}
-/* A anchos reducidos: una columna y los botones de acción dejan de flotar sobre
-   el título (§8.2). */
-@media (max-width: 980px) {
-  .layout { grid-template-columns: 1fr; }
+  /* los botones dejan de flotar sobre el título: pasan a flujo y el título
+     recupera el ancho (evita el solapamiento, §8.2). */
   .product-actions { position: static; margin-top: 4px; justify-content: flex-end; }
   .product-title { padding-right: 0; }
+}
+@media (max-width: 980px) {
+  .layout { grid-template-columns: 1fr; }
   .ranking-card { max-height: none; }
 }
 @media (max-width: 560px) {

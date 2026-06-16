@@ -483,15 +483,12 @@ function buildRankingRows() {
       ? `<span class="flag-nd" title="Sin dato (componente neutro 50): ${escHtml(nd.join(', '))}">n/d</span>`
       : '';
 
-    // Señalización de calidad de datos (NO altera el score; solo avisa, §2.1-2.3):
-    const size = c.metrics.size_eur_12m;
-    const k = c.components;
-    let baseTag = '';
-    if (size === 0) {
-      baseTag = '<span class="flag-stale" title="Candidato (exportó en los últimos 3 años) pero 0 € en los últimos 12 meses: sin exportación reciente.">sin export. reciente</span>';
-    } else if (k.size < 25 && (k.growth > 75 || k.unit_value > 75)) {
-      baseTag = '<span class="flag-small" title="Base reducida: su crecimiento o €/kg —altos sobre una base pequeña— lo impulsan en el ranking. Léelo como oportunidad volátil, no como tamaño.">base reducida</span>';
-    }
+    // Señalización de calidad de datos (NO altera el score; solo avisa, §2.1):
+    // 'sin export. reciente' es independiente del orden; 'base reducida' depende
+    // del rank (mercado diminuto que aun así encabeza) y lo pinta updateRanking.
+    const staleTag = c.metrics.size_eur_12m === 0
+      ? '<span class="flag-stale" title="Candidato (exportó en los últimos 3 años) pero 0 € en los últimos 12 meses: sin exportación reciente.">sin export. reciente</span>'
+      : '';
 
     const cagr = c.metrics.cagr_3y;
     const cagrCapped = cagr != null && isFinite(cagr) && cagr > 5;
@@ -504,7 +501,7 @@ function buildRankingRows() {
     tr.innerHTML = `
       <td class="pos"></td>
       <td class="country" title="${escHtml(c.name)} · ${escHtml(c.region || '')}">
-        <span class="flag">${flagEmoji(c.iso2)}</span><span class="cname">${escHtml(c.name)}</span>${lowData}${ndTag}${baseTag}
+        <span class="flag">${flagEmoji(c.iso2)}</span><span class="cname">${escHtml(c.name)}</span>${lowData}${ndTag}${staleTag}<span class="flag-small-slot"></span>
       </td>
       <td class="score"><div class="score-wrap"><span class="score-num"></span><span class="score-bar"><i></i></span></div></td>
       <td class="comps"><span class="stack"></span></td>
@@ -582,12 +579,22 @@ function updateRanking(animate) {
     $('#btn-copy-summary').disabled = false;
   }
 
+  // 'base reducida': un mercado diminuto (<3 % del mayor destino) que aun así
+  // entra en el top-10 por score. Depende del orden, así que se recalcula aquí
+  // (al mover pesos aparece/desaparece): es justo el aviso del informe §2.3.
+  const maxSize = Math.max(1, ...state.product.countries.map((x) => x.metrics.size_eur_12m || 0));
+
   ranked.forEach(({ c, score }, i) => {
     const { tr } = state.rows.get(c.country_code);
     tr.querySelector('.pos').textContent = i + 1;
     tr.querySelector('.score-num').textContent = Math.round(score);
     tr.querySelector('.score-bar i').style.width = Math.max(0, Math.min(100, score)).toFixed(1) + '%';
     renderStack(tr.querySelector('.stack'), c.components, score);
+    const sz = c.metrics.size_eur_12m;
+    const small = i < 10 && sz != null && sz > 0 && sz < 0.03 * maxSize;
+    tr.querySelector('.flag-small-slot').innerHTML = small
+      ? '<span class="flag-small" title="Entre los mejores por score pese a ser un mercado diminuto (&lt;3 % del mayor destino del producto): oportunidad volátil sobre base pequeña, no tamaño.">base reducida</span>'
+      : '';
     tbody.appendChild(tr);
   });
 
