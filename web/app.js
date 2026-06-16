@@ -591,7 +591,19 @@ function renderCountryPanel(d) {
 
 const charts = {};
 function chart(id) {
-  if (!charts[id]) charts[id] = echarts.init(document.getElementById(id));
+  if (!charts[id]) {
+    const el = document.getElementById(id);
+    const instance = echarts.init(el);
+    charts[id] = instance;
+    // Un ResizeObserver por contenedor: el gráfico se recompone ante CUALQUIER
+    // cambio de tamaño (panel que pasa de oculto a visible, reflow del grid,
+    // carga de fuentes, resize de ventana). Sin esto, ECharts cachea el tamaño
+    // del momento del init y, si el contenedor estaba a 0/estrecho, los ejes
+    // quedan colapsados y el plot comprimido hasta un resize manual (§4.x).
+    if (typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(() => instance.resize()).observe(el);
+    }
+  }
   return charts[id];
 }
 window.addEventListener('resize', () => Object.values(charts).forEach((c) => c.resize()));
@@ -607,6 +619,7 @@ const chartTooltip = (extra = {}) => ({
 const chartLegend = () => ({ top: 0, right: 0, itemWidth: 14, textStyle: { fontSize: 11, color: '#6e8ba5' } });
 
 function renderMonthlyChart(monthly) {
+  chart('chart-monthly').resize(); // recalcula tamaño con el contenedor ya visible
   const periods = monthly.map((m) => m.period);
   const firstProv = monthly.findIndex((m) => m.is_provisional);
   // serie definitiva hasta el corte; serie provisional desde el mes anterior al corte (para enlazar el trazo)
@@ -662,6 +675,7 @@ function renderYearlyChart(yearly) {
   // dato): lo marcamos para que su barra corta no se lea como un desplome.
   const pmax = state.meta?.period_max || '';
   const partialYear = pmax && !pmax.endsWith('-12') ? +pmax.slice(0, 4) : null;
+  chart('chart-yearly').resize(); // recalcula tamaño con el contenedor ya visible
   chart('chart-yearly').setOption({
     textStyle: CHART_FONT,
     animationDuration: 300,
