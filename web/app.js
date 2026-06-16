@@ -194,7 +194,8 @@ function bindSearch() {
       status.textContent = 'Sin resultados';
     } else {
       box.innerHTML = items.map((r, i) => `
-        <button class="search-item" id="opt-${i}" role="option" aria-selected="false" data-i="${i}" type="button">
+        <button class="search-item" id="opt-${i}" role="option" aria-selected="false" data-i="${i}" type="button"
+                aria-label="${escHtml(r.taric)} ${escHtml(r.description)}${r.has_data ? '' : ' (sin datos)'}">
           <span class="code">${escHtml(r.taric)}</span>
           <span class="desc" title="${escHtml(r.description)}">${escHtml(r.description)}</span>
           ${r.has_data ? '' : '<span class="tag-nodata">sin datos</span>'}
@@ -272,6 +273,7 @@ async function loadProduct(taric) {
   renderSliders();
   buildRankingRows();
   updateRanking(false);
+  $('#ranking-card').scrollTop = 0; // arranca en el nº1 al cambiar de producto (§5.5)
 
   $('#left-skeleton').hidden = true;
   $('#product-view').hidden = false;
