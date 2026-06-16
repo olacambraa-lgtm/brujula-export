@@ -102,7 +102,7 @@ const state = {
 
 /* ============================== API y toast ============================== */
 
-async function api(path, { allow404 = false } = {}) {
+async function api(path) {
   let res;
   try {
     res = await fetch(path);
@@ -110,7 +110,6 @@ async function api(path, { allow404 = false } = {}) {
     showToast('No se pudo conectar con el servidor. ¿Está arrancado? Ejecuta ./run.sh');
     throw new Error('network');
   }
-  if (res.status === 404 && allow404) return null;
   if (!res.ok) {
     let msg = 'Error ' + res.status + ' del servidor';
     try {
@@ -1015,7 +1014,7 @@ function buildReport() {
         </td>
         <td class="r-stackcell"><span class="r-stack">${stack}</span></td>
         <td class="r-num">${fmtEur(c.metrics.size_eur_12m)}</td>
-        <td class="r-num ${cagrCls}">${fmtPct(cagr, true)}</td>
+        <td class="r-num ${cagrCls}"${cagr != null && isFinite(cagr) && cagr > 5 ? ` title="CAGR real: ${fmtPct(cagr, true)}"` : ''}>${fmtCagr(cagr)}</td>
       </tr>`;
   }).join('');
 

@@ -1,7 +1,6 @@
 """Tests de la API FastAPI contra el contrato docs/specs/api-contract.md.
 
-Usa el DuckDB de fixture (ver conftest.py) y un directorio temporal de
-insights con un único fichero 2204.md.
+Usa el DuckDB de fixture (ver conftest.py).
 """
 
 import importlib

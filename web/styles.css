@@ -230,7 +230,11 @@ button { font: inherit; color: inherit; }
   padding: 16px 18px; display: flex; flex-direction: column; gap: 12px;
   position: relative; border-left: 3px solid var(--gold-dim);
 }
-.product-title { display: flex; align-items: flex-start; gap: 10px; padding-right: 280px; }
+/* Título y botones comparten una fila flex que NUNCA solapa (antes los botones
+   absolutos pisaban títulos largos en desktop); a anchos estrechos los botones
+   bajan a su propia línea (flex-wrap). */
+.product-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.product-title { display: flex; align-items: flex-start; gap: 10px; flex: 1 1 320px; min-width: 0; }
 .code-chip {
   flex: none; margin-top: 2px;
   font-family: ui-monospace, Menlo, monospace;
@@ -269,7 +273,7 @@ button { font: inherit; color: inherit; }
   border: 1px solid rgba(201,168,76,.20);
   border-radius: 2px; padding: 8px 12px; font-size: 12.5px;
 }
-.product-actions { position: absolute; top: 14px; right: 16px; display: flex; gap: 8px; }
+.product-actions { display: flex; gap: 8px; flex: none; }
 
 /* ──────────── Buttons ──────────── */
 .btn {
@@ -553,10 +557,6 @@ td.comps { width: 104px; }
   .topbar { flex-wrap: wrap; row-gap: 8px; }
   .search-box { order: 3; flex-basis: 100%; max-width: none; margin: 0; }
   .meta-badge { margin-left: auto; }
-  /* los botones dejan de flotar sobre el título: pasan a flujo y el título
-     recupera el ancho (evita el solapamiento, §8.2). */
-  .product-actions { position: static; margin-top: 4px; justify-content: flex-end; }
-  .product-title { padding-right: 0; }
 }
 @media (max-width: 980px) {
   .layout { grid-template-columns: 1fr; }
