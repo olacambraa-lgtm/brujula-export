@@ -256,3 +256,13 @@ def test_search_numeric_without_leading_zero(client):
     # Excel come el cero inicial: '203' debe encontrar 0203 igualmente
     r = client.get("/api/search", params={"q": "203"})
     assert "0203" in [x["taric"] for x in r.json()["results"]]
+
+
+def test_search_data_before_chapters(client):
+    # "carne" matchea el capítulo 02 (nivel 2, sin datos) y el producto 0203
+    # (nivel 4, con datos) con la misma relevancia: el producto con datos debe
+    # ir primero; el capítulo sin datos no debe encabezar (§5.3).
+    r = client.get("/api/search", params={"q": "carne"})
+    tarics = [x["taric"] for x in r.json()["results"]]
+    assert "0203" in tarics and "02" in tarics
+    assert tarics.index("0203") < tarics.index("02")

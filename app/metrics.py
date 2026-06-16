@@ -222,8 +222,10 @@ def search(db, q):
             tuple("(^|[^a-z])" + re.escape(t) for t in tokens)
         rows = db.query(
             base + f"WHERE {_SEARCH_JUNK} AND {condition} "
-            f"ORDER BY ({relevance}) DESC, n.level, t.total DESC NULLS LAST, "
-            "n.taric LIMIT 20",
+            # has_data antes que n.level: un producto con datos va antes que un
+            # capítulo "sin datos" de igual relevancia (no accionable arriba, §5.3).
+            f"ORDER BY ({relevance}) DESC, (t.total IS NOT NULL) DESC, n.level, "
+            "t.total DESC NULLS LAST, n.taric LIMIT 20",
             params)
     results = [
         {"taric": r[0], "description": r[1], "level": r[2], "has_data": bool(r[3])}

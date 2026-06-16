@@ -113,6 +113,7 @@ NOMENCLATURE = [
     ("22", "Bebidas, líquidos alcohólicos y vinagre", 2),
     ("2204", "Vino de uvas frescas, incluso encabezado; mosto de uva", 4),
     ("2205", "Vermut y demás vinos de uvas frescas preparados con plantas", 4),
+    ("02", "Carne y despojos comestibles", 2),
     ("0203", "Carne de animales de la especie porcina, fresca, refrigerada o congelada", 4),
     ("8703", "Automóviles de turismo y demás vehículos para el transporte de personas", 4),
 ]
