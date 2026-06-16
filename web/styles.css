@@ -231,7 +231,7 @@ button { font: inherit; color: inherit; }
   padding: 16px 18px; display: flex; flex-direction: column; gap: 12px;
   position: relative; border-left: 3px solid var(--gold-dim);
 }
-.product-title { display: flex; align-items: flex-start; gap: 10px; padding-right: 150px; }
+.product-title { display: flex; align-items: flex-start; gap: 10px; padding-right: 280px; }
 .code-chip {
   flex: none; margin-top: 2px;
   font-family: ui-monospace, Menlo, monospace;
@@ -270,7 +270,7 @@ button { font: inherit; color: inherit; }
   border: 1px solid rgba(201,168,76,.20);
   border-radius: 2px; padding: 8px 12px; font-size: 12.5px;
 }
-#btn-report { position: absolute; top: 14px; right: 16px; }
+.product-actions { position: absolute; top: 14px; right: 16px; display: flex; gap: 8px; }
 
 /* ──────────── Buttons ──────────── */
 .btn {
@@ -592,6 +592,17 @@ td.comps { width: 104px; }
   .r-kpi strong { font-family: ui-monospace, Menlo, monospace; font-size: 16px; font-weight: 700; color: #2a2620; }
   .r-kpi-accent { box-shadow: inset 0 2px 0 var(--rc); }
   .r-kpi-accent strong { color: var(--rc); }
+
+  /* Resumen ejecutivo */
+  .r-summary { padding: 0 16mm; margin-top: 6mm; break-inside: avoid; }
+  .r-summary h2 { border-bottom: 2px solid var(--rc); padding-bottom: 2mm; margin-bottom: 3mm; }
+  .r-sum-lead { color: #4a443a; margin-bottom: 2.8mm; max-width: 66ch; }
+  .r-sum-lead strong { color: #2a2620; }
+  .r-sum-list { list-style: none; padding: 0; margin: 0 0 2.8mm; display: grid; gap: 1.3mm; }
+  .r-sum-list li { font-size: 9.5px; color: #2a2620; line-height: 1.4; }
+  .r-sum-rank { color: var(--rc-deep); font-weight: 700; font-family: ui-monospace, Menlo, monospace; }
+  .r-sum-meta { color: var(--rsoft); }
+  .r-sum-note { color: var(--rsoft); font-size: 8.5px; font-style: italic; line-height: 1.45; }
 
   .r-ranking, .r-method { padding: 0 16mm; }
   .r-ranking { margin-top: 6mm; break-inside: avoid; }

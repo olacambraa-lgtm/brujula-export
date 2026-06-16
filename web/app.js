@@ -302,7 +302,7 @@ function renderProductHeader() {
 
   $('#ranking-card').hidden = !hasData;
   $('#weights-panel').hidden = !hasData;
-  $('#btn-report').hidden = !hasData;
+  $('.product-actions').hidden = !hasData;
   renderCompsLegend(hasData);
 
   $('#country-placeholder').querySelector('p').textContent = hasData
@@ -571,11 +571,13 @@ function updateRanking(animate) {
     warn.textContent = '⚠ Asigna peso a algún criterio (están todos a 0) para ordenar el ranking.';
     warn.hidden = false;
     $('#btn-report').disabled = true;
+    $('#btn-copy-summary').disabled = true;
   } else {
     const pw = state.product.warning;
     warn.hidden = !pw;
     warn.textContent = pw ? '⚠ ' + pw : '';
     $('#btn-report').disabled = false;
+    $('#btn-copy-summary').disabled = false;
   }
 
   ranked.forEach(({ c, score }, i) => {
@@ -866,6 +868,96 @@ function renderProvincesChart(provinces) {
   }, true);
 }
 
+/* ============================== Resumen ejecutivo ============================== */
+
+// Datos del resumen, calculados del estado vigente (producto + pesos). Sin IA:
+// determinista y reproducible. Reutilizado por el informe (HTML) y por el
+// botón "Copiar resumen" (texto plano para pegar en una IA externa).
+function summaryData() {
+  const p = state.product;
+  const w = state.weights;
+  const sum = COMPONENTS.reduce((s, c) => s + (w[c.key] || 0), 0) || 1;
+  return {
+    taric: p.taric,
+    description: p.description,
+    total: p.total_exports_12m,
+    aragon: p.aragon_share,
+    zaragoza: p.zaragoza_share,
+    candidates: p.n_candidates,
+    window: p.period_window,
+    weights: COMPONENTS.map((c) => ({ label: c.label, pct: Math.round((w[c.key] || 0) / sum * 100) })),
+    top5: currentRanking().slice(0, 5).map(({ c, score }, i) => ({
+      rank: i + 1,
+      name: c.name,
+      access: c.metrics.access,
+      score: Math.round(score),
+      size: c.metrics.size_eur_12m,
+      cagr: c.metrics.cagr_3y,
+      uv: c.metrics.unit_value_eur_kg,
+    })),
+  };
+}
+
+function buildSummaryHtml(d) {
+  const wLine = d.weights.map((x) => `${escHtml(x.label)} ${x.pct}%`).join(' · ');
+  const items = d.top5.map((t) => `
+    <li><span class="r-sum-rank">${t.rank}.</span> <strong>${escHtml(t.name)}</strong>
+      <span class="r-sum-meta">score ${t.score} · ${fmtEur(t.size)} · CAGR ${escHtml(fmtCagr(t.cagr))} · ${escHtml(fmtUnitValue(t.uv))} €/kg · ${escHtml(t.access)}</span></li>`).join('');
+  return `
+    <section class="r-summary">
+      <h2>Resumen ejecutivo</h2>
+      <p class="r-sum-lead">España exportó <strong>${fmtEur(d.total)}</strong> de este producto en los últimos 12 meses (cuota Aragón ${fmtPct(d.aragon)}, Zaragoza ${fmtPct(d.zaragoza)}) hacia ${nf0.format(d.candidates)} mercados candidatos. Con el perfil de pesos aplicado (${wLine}), los cinco mercados objetivo principales por score son:</p>
+      <ol class="r-sum-list">${items}</ol>
+      <p class="r-sum-note">El ranking prioriza oportunidad multicriterio, no volumen. Cifras de exportación española declarada (demanda revelada del producto español), no demanda mundial.</p>
+    </section>`;
+}
+
+function buildSummaryText(d) {
+  const wLine = d.weights.map((x) => `${x.label} ${x.pct}%`).join(' · ');
+  return [
+    'Brújula Export — Resumen ejecutivo',
+    `Producto: ${d.taric} · ${d.description}`,
+    `Ventana: 12 meses (${fmtPeriod(d.window?.from)} – ${fmtPeriod(d.window?.to)})`,
+    '',
+    `Exportación de España (12 m): ${fmtEur(d.total)}`,
+    `Cuota Aragón: ${fmtPct(d.aragon)} · Cuota Zaragoza: ${fmtPct(d.zaragoza)}`,
+    `Países candidatos: ${nf0.format(d.candidates)}`,
+    '',
+    `Perfil de pesos aplicado: ${wLine}`,
+    '',
+    'Top 5 mercados objetivo (ordenados por score multicriterio):',
+    ...d.top5.map((t) =>
+      `${t.rank}. ${t.name} — score ${t.score} · export 12 m ${fmtEur(t.size)} · CAGR 3a ${fmtCagr(t.cagr)} · ${fmtUnitValue(t.uv)} €/kg · ${t.access}`),
+    '',
+    'Nota metodológica: el ranking se ordena por score (oportunidad multicriterio: '
+    + 'tamaño, crecimiento, estabilidad, valor unitario y accesibilidad), no por '
+    + 'volumen. Las cifras son exportación española declarada (demanda revelada del '
+    + 'producto español), no demanda mundial. Datos 2024 en adelante provisionales.',
+  ].join('\n');
+}
+
+function bindCopySummary() {
+  $('#btn-copy-summary').addEventListener('click', async () => {
+    if (!state.product || !state.product.countries.length) return;
+    const text = buildSummaryText(summaryData());
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast('Resumen copiado al portapapeles.');
+    } catch {
+      // Fallback para contextos sin Clipboard API (p. ej. http no seguro)
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); showToast('Resumen copiado al portapapeles.'); }
+      catch { showToast('No se pudo copiar automáticamente.'); }
+      document.body.removeChild(ta);
+    }
+  });
+}
+
 /* ============================== Informe imprimible ============================== */
 
 function bindReport() {
@@ -945,6 +1037,8 @@ function buildReport() {
       <div class="r-kpi"><span>Países candidatos</span><strong>${nf0.format(p.n_candidates)}</strong></div>
     </section>
 
+    ${buildSummaryHtml(summaryData())}
+
     <section class="r-ranking">
       <div class="r-sechead">
         <h2>Top 10 mercados por score</h2>
@@ -998,6 +1092,7 @@ async function init() {
   bindExampleChips();
   bindWeightsReset();
   bindReport();
+  bindCopySummary();
   try {
     state.meta = await api('/api/meta');
     renderMetaBadge();
