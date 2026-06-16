@@ -13,14 +13,8 @@ from fastapi.testclient import TestClient
 
 
 @pytest.fixture(scope="module")
-def client(db_path, tmp_path_factory):
-    insights_dir = tmp_path_factory.mktemp("insights")
-    (insights_dir / "2204.md").write_text(
-        "## Análisis del analista\n\nFrancia lidera el ranking del vino.\n",
-        encoding="utf-8",
-    )
+def client(db_path):
     os.environ["BRUJULA_DB"] = db_path
-    os.environ["BRUJULA_INSIGHTS"] = str(insights_dir)
     import app.main as main
     importlib.reload(main)  # garantiza que lee las env vars de este test
     return TestClient(main.app)
@@ -228,17 +222,9 @@ def test_market_unknown_taric_404(client):
 
 # ---------------------------------------------------------------- insights
 
-def test_insights_existing_file(client):
+def test_insights_route_removed(client):
+    # La feature de análisis IA se eliminó (ADR-005): la ruta ya no existe.
     r = client.get("/api/insights/2204")
-    assert r.status_code == 200
-    data = r.json()
-    assert data["taric"] == "2204"
-    assert "Análisis del analista" in data["markdown"]
-    assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", data["generated_at"])
-
-
-def test_insights_missing_404(client):
-    r = client.get("/api/insights/0203")
     assert r.status_code == 404
     assert isinstance(r.json()["detail"], str)
 

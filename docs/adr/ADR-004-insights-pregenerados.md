@@ -1,6 +1,6 @@
 # ADR-004: Insights IA pregenerados con Claude Code (cero tokens en runtime)
 
-**Estado:** Aceptada · 2026-06-11
+**Estado:** Superseded by [ADR-005](ADR-005-eliminar-insights.md) · 2026-06-16 (la feature de insights se elimina; el principio "cero tokens en runtime" sigue vigente) — original: Aceptada · 2026-06-11
 
 ## Contexto
 Requisito del usuario: la herramienta no debe consumir tokens de API externa; todo gasto de IA va contra la suscripción de Claude Code. La demo debe ser instantánea y funcionar sin red.

@@ -2,7 +2,6 @@
 
 Configuración por variables de entorno:
 - BRUJULA_DB: ruta del DuckDB (default: data/brujula.duckdb)
-- BRUJULA_INSIGHTS: directorio de insights pregenerados (default: insights/)
 """
 
 import os
@@ -13,7 +12,6 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.insights import load_insight
 from app.metrics import (Database, chapter_index, get_meta, market_detail,
                          score_product, search)
 
@@ -23,7 +21,6 @@ WEB_DIR = BASE_DIR / "web"
 
 def create_app():
     db_path = os.environ.get("BRUJULA_DB", str(BASE_DIR / "data" / "brujula.duckdb"))
-    insights_dir = os.environ.get("BRUJULA_INSIGHTS", str(BASE_DIR / "insights"))
     if not os.path.isfile(db_path):
         raise RuntimeError(
             f"No existe la base de datos {db_path}. "
@@ -68,13 +65,6 @@ def create_app():
         result = market_detail(db, taric, country_code)
         if result is None:
             raise HTTPException(404, "Sin datos de exportación para ese producto y país.")
-        return result
-
-    @app.get("/api/insights/{taric}")
-    def api_insights(taric: str):
-        result = load_insight(insights_dir, taric)
-        if result is None:
-            raise HTTPException(404, "No hay análisis pregenerado para este producto.")
         return result
 
     @app.get("/")

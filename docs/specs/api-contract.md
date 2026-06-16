@@ -95,10 +95,6 @@ Reglas:
 - `provinces`: top 8 por valor 12m + siempre Zaragoza (50), Huesca (22) y Teruel (44) si tienen dato; `share` sobre total nacional del producto.
 - `operators`: años con dato; `num_operators` null = secreto estadístico (el frontend muestra "n/d").
 
-## GET /api/insights/{taric}
-
-200 → `{"taric": "2204", "markdown": "## ...", "generated_at": "2026-06-12"}` · 404 si no existe fichero.
-
 ## GET /
 
 Sirve `web/index.html`. Estáticos bajo `/static/*` → `web/*`.
