@@ -980,22 +980,36 @@ function triggerDownload(url, filename, revoke) {
   if (revoke) setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+// data: URL → Blob: las descargas de Blob son más robustas que las de data: URL
+// (algunas configuraciones de Chrome bloquean descargas de data: URLs grandes).
+function dataUrlToBlob(dataUrl) {
+  const [head, b64] = dataUrl.split(',');
+  const mime = (head.match(/:(.*?);/) || [, 'image/png'])[1];
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+
 // PNG: imagen del chart tal como se ve (getDataURL respeta la leyenda).
-// CSV: datos adaptados a la configuración visible. Todo local, sin red.
+// CSV: datos adaptados a la configuración visible. Todo local (Blob), sin red.
 function downloadCard(kind, fmt) {
   if (!state.market || !DL_META[kind]) return;
+  let blob, filename;
   if (fmt === 'png') {
     const inst = charts[DL_META[kind].chartId];
-    if (!inst) return;
-    const url = inst.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#102236' });
-    triggerDownload(url, dlBaseName(kind) + '.png');
-    return;
+    if (!inst) { showToast('La gráfica aún no está lista.'); return; }
+    blob = dataUrlToBlob(inst.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#102236' }));
+    filename = dlBaseName(kind) + '.png';
+  } else {
+    const data = csvForCard(kind);
+    if (!data || !data.rows.length) { showToast('No hay datos para exportar en esta gráfica.'); return; }
+    blob = new Blob([toCsv(data.header, data.rows)], { type: 'text/csv;charset=utf-8' });
+    filename = dlBaseName(kind) + '.csv';
   }
-  const data = csvForCard(kind);
-  if (!data || !data.rows.length) { showToast('No hay datos para exportar en esta gráfica.'); return; }
-  const blob = new Blob([toCsv(data.header, data.rows)], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-  triggerDownload(url, dlBaseName(kind) + '.csv', true);
+  triggerDownload(url, filename, true);
+  showToast('Descargado: ' + filename);
 }
 
 function bindCountryDownloads() {

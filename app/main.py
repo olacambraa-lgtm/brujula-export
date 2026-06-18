@@ -28,6 +28,16 @@ def create_app():
     db = Database(db_path)
     app = FastAPI(title="Brújula Export", docs_url=None, redoc_url=None)
 
+    # Sin caché: evita que el navegador sirva un app.js/styles.css/index.html
+    # antiguos (cacheados) tras actualizar la app — el síntoma típico es "veo los
+    # cambios de estilo pero la feature nueva no responde" (JS viejo). En localhost
+    # la revalidación es instantánea.
+    @app.middleware("http")
+    async def _no_cache(request, call_next):
+        response = await call_next(request)
+        response.headers["Cache-Control"] = "no-cache, must-revalidate"
+        return response
+
     # Los errores por defecto de Starlette llegan en inglés ('Not Found'):
     # el contrato exige mensajes en español también para rutas inexistentes.
     DEFAULT_DETAILS = {"Not Found": "Recurso no encontrado",
