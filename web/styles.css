@@ -517,6 +517,18 @@ td.comps { width: 104px; }
   font-size: 10.5px; font-weight: 700; margin-bottom: 8px;
   color: var(--faint); text-transform: uppercase; letter-spacing: .07em;
 }
+/* Cabecera de gráfica: título + control de descarga a la derecha */
+.chart-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.chart-head h3 { margin-bottom: 8px; }
+.chart-dl { display: inline-flex; gap: 4px; flex: none; }
+.chart-dl button {
+  font-size: 9.5px; font-weight: 700; letter-spacing: .04em;
+  color: var(--faint); background: none;
+  border: 1px solid var(--line-strong); border-radius: 2px;
+  padding: 2px 7px; cursor: pointer;
+  transition: color .12s, border-color .12s, background .12s;
+}
+.chart-dl button:hover { color: var(--gold); border-color: var(--gold-dim); background: var(--gold-soft); }
 #operators-card h3 {
   font-size: 10.5px; font-weight: 700; margin-bottom: 8px;
   color: var(--faint); text-transform: uppercase; letter-spacing: .07em;
@@ -571,9 +583,10 @@ td.comps { width: 104px; }
 #report { display: none; }
 
 @media print {
-  /* Páginas 2+ con margen superior/inferior (la metodología ya no arranca pegada
-     al borde); la portada (primera página) conserva la banda a sangre completa. */
-  @page { size: A4; margin: 16mm 0; }
+  /* Páginas 2+ con margen superior holgado (26mm): el margin-top de las secciones
+     se descarta al caer al inicio de página, así que el aire superior lo da el
+     @page. La portada (primera página) conserva la banda a sangre completa. */
+  @page { size: A4; margin: 26mm 0 16mm; }
   @page :first { margin: 0 0 16mm; }
   body { background: #fff !important; background-image: none !important; color: #2a2620 !important; }
   body.print-mode .app-shell, body.print-mode .toast { display: none !important; }

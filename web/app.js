@@ -98,6 +98,7 @@ const state = {
   defaultWeights: {},
   rows: new Map(),        // country_code → { tr, data }
   selected: null,         // country_code seleccionado
+  market: null,           // respuesta de /api/market/{taric}/{cc} (para descargas)
 };
 
 /* ============================== API y toast ============================== */
@@ -641,6 +642,7 @@ async function selectCountry(cc) {
 
 function renderCountryPanel(d) {
   $('#country-panel').hidden = false;
+  state.market = d; // datos crudos para las descargas PNG/CSV
 
   $('#cp-flag').textContent = flagEmoji(d.country.iso2);
   $('#cp-name').textContent = d.country.name;
@@ -797,10 +799,12 @@ function renderSeasonChart(seasonality) {
   if (!seasonality.length) {
     el.hidden = true;
     empty.hidden = false;
+    toggleCardDownload('season', false);
     return;
   }
   el.hidden = false;
   empty.hidden = true;
+  toggleCardDownload('season', true);
 
   const byMonth = seasonality.slice().sort((a, b) => a.month - b.month);
   const c = chart('chart-season');
@@ -833,10 +837,12 @@ function renderProvincesChart(provinces) {
   if (!provinces.length) {
     el.hidden = true;
     empty.hidden = false;
+    toggleCardDownload('provinces', false);
     return;
   }
   el.hidden = false;
   empty.hidden = true;
+  toggleCardDownload('provinces', true);
 
   // orden ascendente porque ECharts pinta las barras horizontales de abajo arriba
   const rows = provinces.slice().sort((a, b) => (a.euros_12m || 0) - (b.euros_12m || 0));
@@ -874,6 +880,134 @@ function renderProvincesChart(provinces) {
       },
     }],
   }, true);
+}
+
+/* ============================== Descargas de gráficas ============================== */
+
+const DL_META = {
+  monthly:   { chartId: 'chart-monthly',   slug: 'evolucion-mensual' },
+  yearly:    { chartId: 'chart-yearly',    slug: 'serie-anual' },
+  season:    { chartId: 'chart-season',    slug: 'estacionalidad' },
+  provinces: { chartId: 'chart-provinces', slug: 'provincias' },
+};
+
+// Mapa nombre-de-serie → visible según la leyenda; {} si no hay leyenda o no se
+// ha tocado (todo visible). Una serie está visible salvo que sel[name] === false.
+function legendSelected(chartId) {
+  const inst = charts[chartId];
+  if (!inst) return {};
+  const opt = inst.getOption();
+  return (opt.legend && opt.legend[0] && opt.legend[0].selected) || {};
+}
+const seriesVisible = (sel, name) => sel[name] !== false;
+
+// Número crudo → texto es-ES con coma decimal; null/no-finito → celda vacía
+// (nunca un 0 fabricado, regla del proyecto).
+function csvNum(v, decimals) {
+  if (v == null || !isFinite(v)) return '';
+  const n = decimals != null ? +(+v).toFixed(decimals) : +v;
+  return String(n).replace('.', ',');
+}
+function csvText(v) {
+  const s = v == null ? '' : String(v);
+  return /[;"\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function toCsv(header, rows) {
+  const join = (cells) => cells.join(';');
+  return '\uFEFF' + [join(header.map(csvText)), ...rows.map(join)].join('\r\n');
+}
+
+// {header, rows} formateados por gráfica, respetando las series visibles.
+function csvForCard(kind) {
+  const m = state.market;
+  if (!m) return null;
+  if (kind === 'monthly') {
+    const sel = legendSelected('chart-monthly');
+    const showDef = seriesVisible(sel, 'Definitivo');
+    const showProv = seriesVisible(sel, 'Provisional');
+    const rows = m.monthly
+      .filter((x) => (x.is_provisional ? showProv : showDef))
+      .map((x) => [csvText(x.period), csvNum(x.euros, 0), x.is_provisional ? 'Provisional' : 'Definitivo']);
+    return { header: ['Periodo', 'Euros', 'Estado'], rows };
+  }
+  if (kind === 'yearly') {
+    const sel = legendSelected('chart-yearly');
+    const showExp = seriesVisible(sel, 'Exportación (€)');
+    const showUv = seriesVisible(sel, 'Valor unitario (€/kg)');
+    const header = ['Año'];
+    if (showExp) header.push('Exportación (€)');
+    if (showUv) header.push('Valor unitario (€/kg)');
+    const rows = m.yearly.map((y) => {
+      const r = [csvText(y.year)];
+      if (showExp) r.push(csvNum(y.euros, 0));
+      if (showUv) r.push(csvNum(y.unit_value, 2));
+      return r;
+    });
+    return { header, rows };
+  }
+  if (kind === 'season') {
+    return {
+      header: ['Mes', 'Cuota media (%)'],
+      rows: m.seasonality.map((s) => [MONTHS[s.month - 1], csvNum(s.avg_share * 100, 2)]),
+    };
+  }
+  if (kind === 'provinces') {
+    return {
+      header: ['Provincia', 'Exportación 12m (€)', 'Cuota nacional (%)'],
+      rows: m.provinces.map((p) => [csvText(p.name), csvNum(p.euros_12m, 0),
+        csvNum(p.share == null ? null : p.share * 100, 2)]),
+    };
+  }
+  return null;
+}
+
+function dlBaseName(kind) {
+  const m = state.market;
+  const country = (m && m.country && (m.country.iso2 || m.country.country_code)) || 'pais';
+  const taric = (m && m.taric) || (state.product && state.product.taric) || '';
+  return `brujula_${taric}_${country}_${DL_META[kind].slug}`;
+}
+
+function triggerDownload(url, filename, revoke) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  if (revoke) setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// PNG: imagen del chart tal como se ve (getDataURL respeta la leyenda).
+// CSV: datos adaptados a la configuración visible. Todo local, sin red.
+function downloadCard(kind, fmt) {
+  if (!state.market || !DL_META[kind]) return;
+  if (fmt === 'png') {
+    const inst = charts[DL_META[kind].chartId];
+    if (!inst) return;
+    const url = inst.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#102236' });
+    triggerDownload(url, dlBaseName(kind) + '.png');
+    return;
+  }
+  const data = csvForCard(kind);
+  if (!data || !data.rows.length) { showToast('No hay datos para exportar en esta gráfica.'); return; }
+  const blob = new Blob([toCsv(data.header, data.rows)], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  triggerDownload(url, dlBaseName(kind) + '.csv', true);
+}
+
+function bindCountryDownloads() {
+  $('#country-panel').addEventListener('click', (e) => {
+    const btn = e.target.closest('.chart-dl button[data-dl]');
+    if (!btn) return;
+    downloadCard(btn.dataset.dl, btn.dataset.fmt);
+  });
+}
+
+// Oculta el control de descarga de una gráfica sin datos (estacionalidad/provincias).
+function toggleCardDownload(kind, on) {
+  const el = document.querySelector(`.chart-dl[data-card="${kind}"]`);
+  if (el) el.hidden = !on;
 }
 
 /* ============================== Resumen ejecutivo ============================== */
@@ -1101,6 +1235,7 @@ async function init() {
   bindWeightsReset();
   bindReport();
   bindCopySummary();
+  bindCountryDownloads();
   try {
     state.meta = await api('/api/meta');
     renderMetaBadge();

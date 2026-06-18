@@ -176,23 +176,47 @@
         </div>
 
         <div class="card chart-card">
-          <h3>Evolución mensual <span class="hint">exportación española · trazo discontinuo = provisional</span></h3>
+          <div class="chart-head">
+            <h3>Evolución mensual <span class="hint">exportación española · trazo discontinuo = provisional</span></h3>
+            <span class="chart-dl" data-card="monthly">
+              <button type="button" data-dl="monthly" data-fmt="png" title="Descargar imagen PNG (refleja la configuración visible)">PNG</button>
+              <button type="button" data-dl="monthly" data-fmt="csv" title="Descargar datos CSV (refleja la configuración visible)">CSV</button>
+            </span>
+          </div>
           <div id="chart-monthly" class="chart" style="height:228px"></div>
         </div>
 
         <div class="card chart-card">
-          <h3>Serie anual y valor unitario <span class="hint">€/kg en eje secundario</span></h3>
+          <div class="chart-head">
+            <h3>Serie anual y valor unitario <span class="hint">€/kg en eje secundario</span></h3>
+            <span class="chart-dl" data-card="yearly">
+              <button type="button" data-dl="yearly" data-fmt="png" title="Descargar imagen PNG (refleja la configuración visible)">PNG</button>
+              <button type="button" data-dl="yearly" data-fmt="csv" title="Descargar datos CSV (refleja la configuración visible)">CSV</button>
+            </span>
+          </div>
           <div id="chart-yearly" class="chart" style="height:206px"></div>
         </div>
 
         <div class="grid-2">
           <div class="card chart-card">
-            <h3>Estacionalidad <span class="hint">cuota media por mes</span></h3>
+            <div class="chart-head">
+              <h3>Estacionalidad <span class="hint">cuota media por mes</span></h3>
+              <span class="chart-dl" data-card="season">
+                <button type="button" data-dl="season" data-fmt="png" title="Descargar imagen PNG">PNG</button>
+                <button type="button" data-dl="season" data-fmt="csv" title="Descargar datos CSV">CSV</button>
+              </span>
+            </div>
             <div id="chart-season" class="chart" style="height:190px"></div>
             <p id="season-empty" class="empty-note" hidden>No disponible: se requieren al menos 2 años completos definitivos.</p>
           </div>
           <div class="card chart-card">
-            <h3>Provincias <span class="hint">cuota sobre el total nacional</span></h3>
+            <div class="chart-head">
+              <h3>Provincias <span class="hint">cuota sobre el total nacional</span></h3>
+              <span class="chart-dl" data-card="provinces">
+                <button type="button" data-dl="provinces" data-fmt="png" title="Descargar imagen PNG">PNG</button>
+                <button type="button" data-dl="provinces" data-fmt="csv" title="Descargar datos CSV">CSV</button>
+              </span>
+            </div>
             <div id="chart-provinces" class="chart" style="height:190px"></div>
             <p id="prov-empty" class="empty-note" hidden>Sin desglose provincial para este destino.</p>
           </div>
