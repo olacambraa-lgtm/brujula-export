@@ -937,7 +937,9 @@ function csvForCard(kind) {
     const header = ['Año'];
     if (showExp) header.push('Exportación (€)');
     if (showUv) header.push('Valor unitario (€/kg)');
-    const rows = m.yearly.map((y) => {
+    // Ambas series ocultas → sin columnas de datos: filas vacías para que
+    // downloadCard avise "No hay datos" (igual que la mensual), no un CSV degenerado.
+    const rows = (!showExp && !showUv) ? [] : m.yearly.map((y) => {
       const r = [csvText(y.year)];
       if (showExp) r.push(csvNum(y.euros, 0));
       if (showUv) r.push(csvNum(y.unit_value, 2));
