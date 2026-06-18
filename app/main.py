@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -79,7 +79,16 @@ def create_app():
 
     @app.get("/")
     def index():
-        return FileResponse(WEB_DIR / "index.html")
+        # Cache-busting: versiona los assets con su mtime para que el navegador
+        # nunca sirva una versión cacheada antigua tras actualizar la app. Junto
+        # al Cache-Control: no-cache del index, garantiza frontend siempre fresco
+        # en cualquier navegador, sin recargas forzadas.
+        html = (WEB_DIR / "index.html").read_text(encoding="utf-8")
+        for rel in ("styles.css", "app.js", "vendor/echarts.min.js"):
+            p = WEB_DIR / rel
+            v = int(p.stat().st_mtime) if p.is_file() else 0
+            html = html.replace(f"/static/{rel}", f"/static/{rel}?v={v}")
+        return HTMLResponse(html)
 
     app.mount("/static", StaticFiles(directory=str(WEB_DIR)), name="static")
     return app
