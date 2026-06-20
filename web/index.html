@@ -39,6 +39,11 @@
     <div id="meta-badge" class="meta-badge" hidden></div>
   </header>
 
+  <!-- Aviso de datos de demostración (solo cuando la BD es sintética). role=status
+       + aria-live para que el lector de pantalla lo anuncie al cargar /api/meta;
+       se excluye de la impresión vía @media print. -->
+  <div id="demo-banner" class="demo-banner" role="status" aria-live="polite" hidden></div>
+
   <main class="layout">
 
     <!-- ===== Zona izquierda: ranking ===== -->

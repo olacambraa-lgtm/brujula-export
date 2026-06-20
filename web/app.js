@@ -134,14 +134,40 @@ function showToast(msg) {
 
 /* ============================== Metadatos ============================== */
 
+// 'AAAA-MM-DD' → '12 jun 2026' (es-ES); fecha de extracción del dataset.
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso + 'T00:00:00');
+  return isNaN(d) ? iso
+    : d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 function renderMetaBadge() {
   const m = state.meta;
   const b = $('#meta-badge');
   b.innerHTML =
     `<span class="range">Datos: DataComex · ${fmtPeriod(m.period_min)} – ${fmtPeriod(m.period_max)}</span>` +
-    (m.provisional_from ? `<span class="prov">datos desde ${fmtPeriod(m.provisional_from)} provisionales</span>` : '');
+    (m.provisional_from ? `<span class="prov">datos desde ${fmtPeriod(m.provisional_from)} provisionales</span>` : '') +
+    `<span class="fresh">actualizado ${fmtDate(m.extracted_at)}</span>`;
   b.title = `${m.source}\n${m.disclaimer}\nExtracción: ${m.extracted_at} · ${nf0.format(m.n_products)} productos · ${nf0.format(m.n_countries)} países`;
   b.hidden = false;
+
+  // Banner de datos de demostración: solo cuando la BD es sintética. Cargar datos
+  // reales es una acción de mantenimiento explícita (la app no descarga en runtime,
+  // regla offline / ADR-006): se muestra el comando único y el reinicio necesario.
+  const banner = $('#demo-banner');
+  if (banner) {
+    if (m.is_synthetic) {
+      banner.innerHTML =
+        '<span class="db-icon" aria-hidden="true">⚠</span>' +
+        '<span class="db-text"><strong>Datos de demostración</strong> (sintéticos, no reales). ' +
+        'Para cargar los datos oficiales de DataComex ejecuta ' +
+        '<code>./update-data.sh</code> y reinicia la app.</span>';
+      banner.hidden = false;
+    } else {
+      banner.hidden = true;
+    }
+  }
 }
 
 /* ============================== Buscador ============================== */

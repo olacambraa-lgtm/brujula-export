@@ -17,10 +17,11 @@ Uso:
 import argparse
 import importlib
 import json
+import os
 import random
 import statistics
 import time
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 from app.metrics import (DEFAULT_WEIGHTS, Database, get_meta, market_detail,
@@ -482,6 +483,47 @@ def check_complexity_tax():
                detail=f"{total} LOC en núcleo (app.js+metrics+main+etl+css).")
 
 
+def check_data_freshness(con, db_path):
+    """Frescura de datos + cableado del mecanismo de actualización (feature
+    «datos dinámicos»). Determinista, SIN red.
+
+    Mide el desfase de max(period) respecto al mes en curso —DataComex publica con
+    ~2-3 meses de retraso, así que hasta 5 se considera al día— y verifica que el
+    pipeline de actualización está disponible (etl.update importable + update-data.sh
+    ejecutable). La comparación autoritativa contra el último mes publicado la hace
+    `etl.update --to auto` (esa sí usa la red)."""
+    pmax = con.execute("SELECT max(period) FROM trade WHERE flow='X'").fetchone()[0]
+    today = date.today()
+    months_behind = (999 if pmax is None else
+                     (today.year * 12 + today.month) - (pmax.year * 12 + pmax.month))
+    lag_ok = 5  # margen sobre el retraso de publicación de DataComex
+    stale = 100.0 if months_behind <= lag_ok else max(0.0, 100 - 20 * (months_behind - lag_ok))
+    issues = []
+    try:
+        mod = importlib.import_module("etl.update")
+        if not (hasattr(mod, "coverage") and hasattr(mod, "needs_update")
+                and hasattr(mod, "main")):
+            issues.append("etl.update incompleto")
+    except Exception as e:  # noqa: BLE001
+        issues.append(f"etl.update no importable: {e!r}")
+    sh = BASE_DIR / "update-data.sh"
+    if not sh.is_file():
+        issues.append("falta update-data.sh")
+    elif not os.access(sh, os.X_OK):
+        issues.append("update-data.sh no ejecutable")
+    mech = 100.0 if not issues else max(0.0, 100 - 34 * len(issues))
+    score = round(min(stale, mech), 1)
+    ym = f"{pmax.year:04d}-{pmax.month:02d}" if pmax else None
+    return kpi("data_freshness", "Frescura de datos", "Data Freshness",
+               "guardrail", _status(score), score,
+               value={"db_max": ym, "months_behind": months_behind,
+                      "update_mechanism": "ok" if not issues else issues},
+               target={"months_behind_max": lag_ok, "update_mechanism": "ok"},
+               detail=f"DB hasta {ym} ({months_behind} mes(es) tras el mes en curso; "
+                      f"DataComex publica con ~2-3 de retraso). Mecanismo: "
+                      f"{'cableado (etl.update + update-data.sh)' if not issues else '; '.join(issues)}.")
+
+
 # KPIs de frontend (capa CDP): cada uno tiene su scorer en eval/kpis/<id>.py.
 FRONTEND_KPI_IDS = [
     "graph_parity", "chart_completeness", "csv_parity", "png_success",
@@ -554,6 +596,7 @@ def run(db_path):
     cf, lat = check_crash_free_and_latency(db, sweep)
     kpis.extend([cf, lat])
     kpis.append(check_complexity_tax())
+    kpis.append(check_data_freshness(con, db_path))
     kpis.extend(frontend_scores(con))
 
     scored = [k for k in kpis if isinstance(k["score"], (int, float))]
