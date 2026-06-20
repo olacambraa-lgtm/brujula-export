@@ -6,15 +6,29 @@ Fecha: 2026-06-11. Vías verificadas empíricamente (ver
 ## 0. Resumen de comandos
 
 ```bash
-# Descarga (elige vía automáticamente: API si hay credenciales, CSV si no)
-.venv/bin/python -m etl.download --from 2015-01 --to auto --mode auto
+# Actualización en un comando (descarga incremental + reconstrucción) — datos dinámicos
+./update-data.sh                     # = python -m etl.update  (hasta el último mes publicado)
+./update-data.sh --force             # reconstruye aunque ya esté al día
 
-# Carga del DuckDB
-.venv/bin/python -m etl.load --db data/brujula.duckdb
+# O por fases:
+.venv/bin/python -m etl.download --from 2015-01 --to auto --mode auto   # API si hay credenciales, CSV si no
+.venv/bin/python -m etl.load --db data/brujula.duckdb                   # reconstruye el DuckDB
 
 # Tests del ETL (offline); con red: BRUJULA_NETWORK_TESTS=1
-.venv/bin/pytest tests/test_etl.py -q
+.venv/bin/pytest tests/test_etl.py tests/test_update.py -q
 ```
+
+### Actualización periódica (datos dinámicos)
+
+`etl.update` es el flujo recomendado para mantener los datos al día (ver
+`docs/specs/2026-06-20-datos-dinamicos.md` y `docs/adr/ADR-006`). Imprime la
+cobertura actual, hace un **GET barato** a `ObtenerPeriodos` para conocer el último
+periodo publicado, **cortocircuita** si la BD real ya lo tiene (no descarga nada),
+descarga **solo el delta** (idempotente) y reconstruye con **swap atómico**
+(build en `.tmp` → validar → `os.replace`; un fallo deja intacta la BD vigente).
+DataComex publica con ~2-3 meses de retraso; cuando aparece un mes nuevo, basta
+re-ejecutar y reiniciar la app. Una BD **sintética** nunca cortocircuita (se
+reconstruiría a datos reales en cuanto haya red).
 
 Ficheros generados:
 

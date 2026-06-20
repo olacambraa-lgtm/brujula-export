@@ -1,0 +1,39 @@
+# CI de liveness de la cadena de extracción de DataComex (sin secretos, sin cuenta).
+#
+# NO distribuye datos: un artefacto de Actions caduca y un clon git no lo recibe;
+# data/ va en .gitignore y cada usuario actualiza localmente con ./update-data.sh.
+# Además, la primera descarga completa por la vía pública CSV tarda horas y no
+# cabe en el límite de un job. Por eso este workflow no descarga el dataset.
+#
+# Lo que SÍ hace: ejecuta el smoke test de red (maestras abiertas + cadena CSV
+# pública) — rápido y siempre termina — para AVISAR a los forks si DataComex
+# cambia y rompe el scraper. Si el job mensual falla, la cadena de extracción
+# necesita revisión. Ver docs/adr/ADR-006-datos-dinamicos.md.
+name: DataComex liveness
+
+on:
+  schedule:
+    - cron: "0 6 5 * *"   # día 5 de cada mes, 06:00 UTC (margen tras la publicación)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  liveness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Instalar dependencias
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install -r requirements.txt
+      - name: Smoke test de la cadena DataComex (maestras + CSV público)
+        env:
+          BRUJULA_NETWORK_TESTS: "1"
+        run: .venv/bin/pytest tests/test_etl.py -k red -q
