@@ -65,7 +65,8 @@ CREATE TABLE countries (
   access_tier  VARCHAR
 );
 CREATE TABLE meta_info (
-  extracted_at DATE NOT NULL
+  extracted_at DATE NOT NULL,
+  is_synthetic BOOLEAN NOT NULL DEFAULT FALSE
 );
 """
 
@@ -281,7 +282,9 @@ def build_db(db_path, raw_dir=RAW_DIR, meta_csv=META_CSV):
     con.execute(SCHEMA)
     # Fecha real de extracción (la carga se hace sobre el raw recién bajado);
     # /api/meta la lee de aquí en vez de fiarse del mtime del fichero.
-    con.execute("INSERT INTO meta_info VALUES (current_date)")
+    # is_synthetic=FALSE: marca POSITIVA de datos reales de DataComex (el
+    # generador sintético escribe TRUE); el banner de demo se basa solo en TRUE.
+    con.execute("INSERT INTO meta_info VALUES (current_date, FALSE)")
 
     paises = json.loads((masters_dir / "paises.json").read_text(encoding="utf-8"))
     tarics = json.loads((masters_dir / "tarics.json").read_text(encoding="utf-8"))

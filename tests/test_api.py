@@ -33,6 +33,9 @@ def test_meta_shape(client):
     assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", data["extracted_at"])
     assert isinstance(data["source"], str) and "DataComex" in data["source"]
     assert isinstance(data["disclaimer"], str)
+    # is_synthetic: el fixture no tiene meta_info → False (no marcar como demo
+    # datos posiblemente reales). El banner del frontend solo se activa con TRUE.
+    assert data["is_synthetic"] is False
 
 
 # ------------------------------------------------------------------ search

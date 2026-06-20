@@ -12,10 +12,13 @@ Todas las respuestas son JSON UTF-8. Errores: `{"detail": "<mensaje en español>
   "provisional_from": "2024-01",
   "n_products": 1200,
   "n_countries": 230,
+  "is_synthetic": false,
   "source": "DataComex — Secretaría de Estado de Comercio. Comercio declarado (~98% del total).",
   "disclaimer": "Datos 2024 en adelante provisionales. Celdas con ≤5 operadores ocultas por secreto estadístico."
 }
 ```
+
+`is_synthetic` (bool): `true` solo si la base de datos la generó `scripts/make_synthetic_db.py` (dataset de demostración). Marca POSITIVA leída de `meta_info`; si la tabla/columna no existe (BDs reales antiguas), `false`. El frontend muestra el banner «Datos de demostración» únicamente cuando es `true`.
 
 ## GET /api/search?q=texto
 

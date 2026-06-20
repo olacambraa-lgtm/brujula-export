@@ -130,6 +130,10 @@ CREATE TABLE countries (
   eu_member    BOOLEAN,
   access_tier  VARCHAR
 );
+CREATE TABLE meta_info (
+  extracted_at DATE NOT NULL,
+  is_synthetic BOOLEAN NOT NULL DEFAULT FALSE
+);
 """
 
 
@@ -223,6 +227,9 @@ def build(out_path):
     nomen += [(t, desc, 4) for t, (desc, _, _) in PRODUCTS.items()]
     con.executemany("INSERT INTO nomenclature VALUES (?,?,?)", nomen)
     con.executemany("INSERT INTO countries VALUES (?,?,?,?,?,?)", COUNTRIES)
+    # is_synthetic=TRUE: la app muestra el banner «Datos de demostración» y la
+    # actualización (etl.update) nunca cortocircuita sobre una BD sintética.
+    con.execute("INSERT INTO meta_info VALUES (current_date, TRUE)")
 
     n_trade = con.execute("SELECT count(*) FROM trade").fetchone()[0]
     pmin, pmax = con.execute("SELECT min(period), max(period) FROM trade").fetchone()

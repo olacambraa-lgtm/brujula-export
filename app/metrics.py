@@ -172,6 +172,14 @@ def get_meta(db):
         extracted = db.query("SELECT extracted_at FROM meta_info")[0][0].isoformat()
     except Exception:  # DBs anteriores a la tabla meta_info (p.ej. sintético)
         extracted = date.fromtimestamp(os.path.getmtime(db.path)).isoformat()
+    # is_synthetic: marca POSITIVA del generador sintético. Lectura tolerante: si
+    # la tabla o la columna no existen (DBs reales antiguas, fixtures), por defecto
+    # FALSE — nunca marcar como «demo» datos posiblemente reales. El banner del
+    # frontend se basa solo en is_synthetic=TRUE explícito.
+    try:
+        is_synthetic = bool(db.query("SELECT is_synthetic FROM meta_info")[0][0])
+    except Exception:
+        is_synthetic = False
     return {
         "extracted_at": extracted,
         "period_min": _ym(pmin) if pmin else None,
@@ -179,6 +187,7 @@ def get_meta(db):
         "provisional_from": _ym(prov) if prov else None,
         "n_products": n_products,
         "n_countries": n_countries,
+        "is_synthetic": is_synthetic,
         "source": SOURCE,
         "disclaimer": DISCLAIMER,
     }
