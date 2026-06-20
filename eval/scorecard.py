@@ -15,6 +15,7 @@ Uso:
 """
 
 import argparse
+import importlib
 import json
 import random
 import statistics
@@ -481,6 +482,35 @@ def check_complexity_tax():
                detail=f"{total} LOC en núcleo (app.js+metrics+main+etl+css).")
 
 
+# KPIs de frontend (capa CDP): cada uno tiene su scorer en eval/kpis/<id>.py.
+FRONTEND_KPI_IDS = [
+    "graph_parity", "chart_completeness", "csv_parity", "png_success",
+    "numeric_faithfulness", "citation_traceability", "exec_summary_validity",
+    "task_completion", "source_reconciliation",
+]
+FRONTEND_BUNDLE = Path(__file__).resolve().parent / "reports" / "frontend" / "bundle.json"
+
+
+def frontend_scores(con):
+    """Ejecuta los scorers de frontend (eval/kpis/*) sobre el bundle de evidencias.
+
+    Sin bundle → placeholders `na`. Un scorer que falle o no exista degrada a `na`
+    sin tumbar el scorecard entero."""
+    if not FRONTEND_BUNDLE.is_file():
+        return frontend_placeholders()
+    bundle = json.loads(FRONTEND_BUNDLE.read_text(encoding="utf-8"))
+    out = []
+    for kid in FRONTEND_KPI_IDS:
+        try:
+            mod = importlib.import_module(f"eval.kpis.{kid}")
+            out.append(mod.check(bundle, con))
+        except Exception as e:  # noqa: BLE001
+            out.append({"id": kid, "layer": "—", "name": kid, "tier": "guardrail",
+                        "status": "na", "score": None, "value": None,
+                        "target": None, "detail": f"scorer no disponible: {e!r}"})
+    return out
+
+
 def _na(kid, layer, name, note):
     return kpi(kid, layer, name, "guardrail", "na", None, detail=note)
 
@@ -524,7 +554,7 @@ def run(db_path):
     cf, lat = check_crash_free_and_latency(db, sweep)
     kpis.extend([cf, lat])
     kpis.append(check_complexity_tax())
-    kpis.extend(frontend_placeholders())
+    kpis.extend(frontend_scores(con))
 
     scored = [k for k in kpis if isinstance(k["score"], (int, float))]
     guard = [k for k in scored if k["tier"] == "guardrail"]

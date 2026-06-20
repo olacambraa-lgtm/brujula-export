@@ -55,25 +55,33 @@ INSTALL_HOOK = r"""
 })()
 """
 
+# Fidelidad: una gráfica con `el.hidden` (estado vacío, p.ej. sin estacionalidad o
+# sin desglose provincial) muestra al usuario un mensaje "No disponible", NO la
+# gráfica. Su instancia ECharts puede conservar datos del producto anterior, pero
+# están OCULTOS e inalcanzables (descarga deshabilitada). Por eso solo leemos
+# series de gráficas VISIBLES: el bundle refleja lo que el usuario ve, no estado
+# interno obsoleto. Así no se confunde "instancia con datos viejos" con "gráfica
+# mostrada", y un futuro bug de gráfica VISIBLE con datos erróneos sí se detecta.
 EXTRACT_CHARTS = r"""
 (function(){
   var ids=['chart-monthly','chart-yearly','chart-season','chart-provinces'];
   var out={charts:{},inventory:{}};
   ids.forEach(function(id){
     var el=document.getElementById(id);
+    var visible=!!(el && !el.hidden && el.offsetParent!==null);
     var inst=el && window.echarts && echarts.getInstanceByDom(el);
-    if(inst){
+    if(inst && visible){
       var opt=inst.getOption();
       out.charts[id]={
         series:(opt.series||[]).map(function(s){return {name:s.name,type:s.type,data:s.data};}),
         xAxis:(opt.xAxis||[]).map(function(a){return a.data;}),
         legend:(opt.legend||[]).map(function(l){return l.data||null;})
       };
-      out.inventory[id]={present:true,
+      out.inventory[id]={present:true,visible:true,
         has_data:(opt.series||[]).some(function(s){return (s.data||[]).length>0;})};
     } else {
-      out.inventory[id]={present:false, container_exists:!!el,
-        container_visible:!!(el && el.offsetParent!==null)};
+      out.inventory[id]={present:false,visible:visible,has_data:false,
+        instance_exists:!!inst,container_exists:!!el};
     }
   });
   out.country_panel_visible=!!(document.getElementById('country-panel') &&
@@ -213,15 +221,23 @@ async def extract_pair(sess, db, taric, cc):
     csv = await capture_csv(sess)
 
     png = {}
+    inv = ch.get("inventory") or {}
     for cid in CHART_IDS:
+        kind = cid.replace("chart-", "")
+        # Solo se exporta lo que el usuario puede exportar: gráficas VISIBLES (las
+        # ocultas tienen la descarga deshabilitada). No aplica ≠ fallo.
+        if not (inv.get(cid) or {}).get("visible"):
+            png[kind] = {"ok": None, "applicable": False,
+                         "reason": "gráfica oculta (estado vacío)", "chartId": cid}
+            continue
         data_url = await sess.evaluate(
             "(function(){var el=document.getElementById(%s);"
             "var i=el&&echarts.getInstanceByDom(el); if(!i) return null;"
             "try{return i.getDataURL({type:'png',pixelRatio:2,backgroundColor:'#102236'});}"
             "catch(e){return null;}})()" % json.dumps(cid))
-        kind = cid.replace("chart-", "")
         png[kind] = (_png_info(data_url, PNG_DIR / f"{taric}_{cc}_{kind}.png")
                      if data_url else {"ok": False, "reason": "sin instancia/datos"})
+        png[kind]["applicable"] = True
         png[kind]["chartId"] = cid
 
     await sess.evaluate("var b=document.getElementById('btn-report'); if(b)b.click();")
