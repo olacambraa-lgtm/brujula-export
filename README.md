@@ -29,7 +29,7 @@ Los datos NO van en el repo (son grandes y cambian cada mes): cada usuario los d
 
 La actualización es **incremental e idempotente** y con **cortocircuito «ya al día»**: tras la primera construcción (la más larga), cada ejecución solo trae los meses que falten; si ya está al día, no descarga nada. La reconstrucción usa **swap atómico**, así que un fallo de red nunca deja la base a medias; tras actualizar, reinicia la app (`./run.sh`) para servir los datos nuevos. `./run.sh --update` actualiza y arranca en un paso. La app sigue siendo **100 % offline** al servir: actualizar es la única acción que usa la red y es deliberada (ver [ADR-006](docs/adr/ADR-006-datos-dinamicos.md)).
 
-> La **primera** descarga por la vía pública (sin cuenta) baja todo el histórico nacional y tarda varias horas (ver runbook). Para un primer vistazo rápido con datos reales recientes: `./update-data.sh --from 2022-01` (~1,5 h, últimos años). Un CI opcional, [`datacomex-liveness.yml`](.github/workflows/datacomex-liveness.yml) (mensual, sin secretos), avisa a los *forks* si DataComex cambia y rompe la cadena de extracción.
+> La **primera** descarga por la vía pública (sin cuenta) baja todo el histórico nacional y tarda ~5-8 h (ver runbook). Para un primer vistazo rápido con datos reales recientes: `./update-data.sh --from 2022-01` (~1,5 h, últimos años). Un CI opcional, [`datacomex-liveness.yml`](.github/workflows/datacomex-liveness.yml) (mensual, sin secretos), avisa a los *forks* si DataComex cambia y rompe la cadena de extracción.
 
 ## Arquitectura
 

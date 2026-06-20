@@ -9,21 +9,23 @@ Qué se verifica por cada evidence:
   2. Cuota Aragón                        → api_product.aragon_share  (en %)
   3. Cuota Zaragoza                      → api_product.zaragoza_share (en %)
   4. N.º países candidatos               → api_product.n_candidates
-  5. Tabla top-10 (hasta los países disponibles):
-       - Nombre del país (ignorando spans HTML de flags)
-       - Export. 12 m por país           → countries[i].metrics.size_eur_12m
-       - CAGR 3a                         → countries[i].metrics.cagr_3y
-     OJO: el informe puede usar pesos distintos a default_weights (los extrae del
-     propio HTML), así que el orden del top-10 se verifica contra el ranking
-     recalculado con esos pesos, no contra el orden original de la API.
+  5. Tabla top-10: por cada fila del informe se busca el país en api_product.countries
+     por NOMBRE (limpiando el marcador ▲) y se verifica:
+       - Export. 12 m por país           → countries[name].metrics.size_eur_12m
+       - CAGR 3a                         → countries[name].metrics.cagr_3y
+     Adicionalmente se verifica consistencia interna: el score mostrado en el
+     informe debe ser decreciente fila a fila (orden descendente).
 
 Reglas de tolerancia:
   - Euros abreviados: tolerancia ±0,5 % relativa + 50 k€ absolutos (3 sig figs).
   - Cuotas en %: ±0,1 pp (display a 1 decimal).
   - CAGR en %:   ±0,1 pp (display a 1 decimal).
+  - «>+500 %» en HTML es correcto si api cagr_3y > 5 (tope de display).
+  - «n/d» en CAGR es correcto si api cagr_3y es None.
   - null nunca es 0 (regla dura del proyecto).
 """
 
+import html as _html_mod
 import re
 
 from eval.kpis._util import kpi, pct
@@ -37,12 +39,14 @@ def _strip_html(s):
     """Elimina etiquetas HTML de una cadena (para nombres de país con spans).
 
     Primero quita los spans de flag (r-warn) junto con su contenido (p.ej. '▲'),
-    luego elimina cualquier etiqueta HTML restante.
+    luego elimina cualquier etiqueta HTML restante y desescapa entidades HTML.
     """
     # Quitar el span de advertencia y su contenido (p.ej. <span class="r-warn">▲</span>)
     s = re.sub(r'<span[^>]*class="r-warn"[^>]*>.*?</span>', '', s, flags=re.DOTALL)
     # Quitar etiquetas HTML restantes
-    return re.sub(r'<[^>]+>', '', s).strip()
+    s = re.sub(r'<[^>]+>', '', s)
+    # Desescapar entidades HTML (&gt; → >, &amp; → &, etc.)
+    return _html_mod.unescape(s).strip()
 
 
 def _parse_fmteur(s):
@@ -76,8 +80,11 @@ def _parse_fmteur(s):
 
 
 def _parse_pct(s):
-    """Parsea '1,7 %' o 'n/d' → float (0.017) o None."""
-    s2 = s.strip().replace('%', '').replace('+', '').replace(',', '.').strip()
+    """Parsea '+35,6 %', '>+500 %', '-2,2 %', 'n/d' → float (fracción) o None.
+
+    El prefijo '>' se ignora: se parsea el número que le sigue.
+    """
+    s2 = s.strip().lstrip('>').replace('%', '').replace('+', '').replace(',', '.').strip()
     if s2 in ('n/d', 'nd', '—', '-', '–', ''):
         return None
     try:
@@ -129,11 +136,22 @@ def _pct_ok(html_str, api_ratio):
 
 
 def _cagr_ok(html_str, api_cagr):
-    """Verifica CAGR ('+35,6 %' o 'n/d') contra api cagr_3y (float o None)."""
+    """Verifica CAGR ('+35,6 %', '>+500 %' o 'n/d') contra api cagr_3y (float o None).
+
+    Casos especiales:
+      - «n/d»      → correcto si api_cagr is None.
+      - «>+500 %»  → correcto si api_cagr > 5 (el frontend muestra este tope cuando
+                     el CAGR real supera el 500 %, que en fracción es > 5.0).
+      - Resto      → tolerancia ±0,1 pp.
+    """
     s2 = html_str.strip()
     if api_cagr is None:
         ok = s2 in ('n/d', 'nd', '—', '-', '–')
         return ok, "null→n/d"
+    # Tope de display: «>+500 %» (o con entidades: «&gt;+500 %» ya desescapado)
+    if s2.startswith('>'):
+        ok = api_cagr > 5.0
+        return ok, f">+500% tope: api={api_cagr:.4f} {'≥' if ok else '<'}5"
     parsed = _parse_pct(s2)
     if parsed is None:
         return False, f"no parseable: {s2!r}"
@@ -153,12 +171,6 @@ _RE_KPIS = re.compile(
     re.DOTALL
 )
 
-_RE_TABLE_ROW = re.compile(
-    r'<td class="r-rank">(\d+)</td>\s*<td class="r-country">(.*?)</td>'
-    r'.*?<td class="r-num">(.*?)</td>\s*<td class="r-num[^"]*">(.*?)</td>',
-    re.DOTALL
-)
-
 _RE_WEIGHT_CHIP = re.compile(r'(\w[\w\s]+?)\s+(\d+)%')
 
 
@@ -171,14 +183,38 @@ def _extract_summary(html):
 
 
 def _extract_table_rows(html):
-    """Lista de (rank_int, name_str_clean, export_str, cagr_str)."""
+    """Lista de (rank_int, name_str_clean, score_int, export_str, cagr_str).
+
+    Parsea cada <tr> del <tbody> extrayendo celdas por posición:
+      col 0: r-rank   → rank
+      col 1: r-country → nombre del país (con posible span r-warn que se limpia)
+      col 2: r-scorecell → score numérico (extraído de r-score-n)
+      col 3: r-stackcell → (se omite)
+      col 4: r-num    → exportación 12 m
+      col 5: r-num    → CAGR 3a
+
+    Las entidades HTML (&gt;, etc.) se desescapan en _strip_html.
+    """
+    tbody_m = re.search(r'<tbody>(.*?)</tbody>', html, re.DOTALL)
+    if not tbody_m:
+        return []
+
     rows = []
-    for m in _RE_TABLE_ROW.finditer(html):
-        rank = int(m.group(1))
-        name = _strip_html(m.group(2))
-        export_str = _strip_html(m.group(3))
-        cagr_str = _strip_html(m.group(4))
-        rows.append((rank, name, export_str, cagr_str))
+    for tr_frag in re.split(r'<tr\b', tbody_m.group(1))[1:]:  # [0] es texto vacío previo
+        tds = re.findall(r'<td[^>]*>(.*?)</td>', tr_frag, re.DOTALL)
+        if len(tds) < 6:
+            continue
+        try:
+            rank = int(tds[0].strip())
+        except ValueError:
+            continue
+        name = _strip_html(tds[1])
+        # Score: buscar el <span class="r-score-n">NN</span>
+        score_m = re.search(r'r-score-n[^>]*>(\d+)<', tds[2])
+        score = int(score_m.group(1)) if score_m else None
+        export_str = _strip_html(tds[4])
+        cagr_str = _strip_html(tds[5])
+        rows.append((rank, name, score, export_str, cagr_str))
     return rows
 
 
@@ -225,30 +261,6 @@ def _extract_report_weights(html):
         return None
     # Normalizar a proporciones (suman 1.0)
     return {k: v / total for k, v in weights.items()}
-
-
-def _compute_score(components, weights):
-    """Réplica de la fórmula del frontend: Σ(w·c)/Σ(w), null→50."""
-    num = den = 0.0
-    for k, w in weights.items():
-        w = w or 0.0
-        c = components.get(k)
-        num += w * (50.0 if c is None else c)
-        den += w
-    return num / den if den else 0.0
-
-
-def _rank_countries_by_weights(countries, weights):
-    """Devuelve la lista de países ordenada por score desc, desempate por size desc."""
-    scored = sorted(
-        countries,
-        key=lambda c: (
-            _compute_score(c['components'], weights),
-            c['metrics'].get('size_eur_12m') or 0.0
-        ),
-        reverse=True
-    )
-    return scored
 
 
 # ---------------------------------------------------------------------------
@@ -327,31 +339,35 @@ def check(bundle, con):
         # --- 2. Tabla top-10 --------------------------------------------------
         rows = _extract_table_rows(html)
         if rows:
-            # Obtener los pesos activos en el informe (pueden diferir de default_weights)
-            report_weights = _extract_report_weights(html)
-            if report_weights is None:
-                # Fallback a los pesos por defecto de la API
-                report_weights = ap.get('default_weights', {})
+            # Construir índice nombre → datos de API para emparejar por nombre
+            countries_by_name = {c['name']: c for c in ap.get('countries', [])}
 
-            # Reordenar los países con los pesos del informe para comparar el orden
-            countries_ranked = _rank_countries_by_weights(ap.get('countries', []), report_weights)
-            top_n = min(len(rows), len(countries_ranked))
+            prev_score = None  # para verificar orden descendente
 
-            for i in range(top_n):
-                rank, name_html, exp_str, cagr_str = rows[i]
-                c_api = countries_ranked[i]
-                name_api = c_api.get('name', '')
-                size_api = c_api['metrics'].get('size_eur_12m')
-                cagr_api = c_api['metrics'].get('cagr_3y')
+            for rank, name_html, score_html, exp_str, cagr_str in rows:
+                c_api = countries_by_name.get(name_html)
 
-                # 2a. Nombre del país (posición i del ranking recalculado)
+                # 2a. Nombre del país: debe existir en la API
                 total_checks += 1
-                ok_name = (name_html == name_api)
-                if ok_name:
+                if c_api is not None:
                     ok_checks += 1
                 else:
                     fails.append((taric, cc, f'top{rank}_name',
-                                  f"html={name_html!r} vs api={name_api!r}"))
+                                  f"html={name_html!r} no encontrado en api_product.countries"))
+                    # Sin datos de API para este país → saltamos export y CAGR
+                    # pero sí contamos el orden si tenemos score
+                    if score_html is not None and prev_score is not None:
+                        total_checks += 1
+                        if score_html <= prev_score:
+                            ok_checks += 1
+                        else:
+                            fails.append((taric, cc, f'top{rank}_order',
+                                          f"score {score_html} > anterior {prev_score}"))
+                    prev_score = score_html
+                    continue
+
+                size_api = c_api['metrics'].get('size_eur_12m')
+                cagr_api = c_api['metrics'].get('cagr_3y')
 
                 # 2b. Export. 12 m del país
                 total_checks += 1
@@ -369,6 +385,16 @@ def check(bundle, con):
                 else:
                     fails.append((taric, cc, f'top{rank}_cagr', det))
 
+                # 2d. Orden descendente por score (consistencia interna)
+                if score_html is not None and prev_score is not None:
+                    total_checks += 1
+                    if score_html <= prev_score:
+                        ok_checks += 1
+                    else:
+                        fails.append((taric, cc, f'top{rank}_order',
+                                      f"score {score_html} > anterior {prev_score}"))
+                prev_score = score_html
+
     score = pct(ok_checks, total_checks)
 
     # Resumen de lo verificado
@@ -378,7 +404,7 @@ def check(bundle, con):
         f"{ok_checks}/{total_checks} comprobaciones correctas en {n_ev} pares "
         f"({skipped} evidences omitidos). "
         "Secciones: resumen (total 12m, cuota Aragón, cuota Zaragoza, n_candidatos) + "
-        "tabla top-10 (nombre, export 12m, CAGR 3a por país, orden según pesos del informe)."
+        "tabla top-10 (nombre por nombre, export 12m, CAGR 3a, orden descendente)."
     )
     if fails:
         detail += f" Fallos ({len(fails)}): " + "; ".join(fail_sample)

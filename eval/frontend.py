@@ -106,22 +106,34 @@ def _png_info(data_url, dest):
             "path": str(dest.relative_to(BASE_DIR))}
 
 
+# Casos límite curados que SIEMPRE entran en la muestra: estresan los formatos de
+# display difíciles del informe/gráficas (CAGR capado «>+500 %», «n/d», €/kg
+# atípico, estacionalidad/provincias vacías en productos nicho). Garantizan que
+# el KPI sea ESTABLE y verifique de verdad esos casos, no solo productos fáciles.
+EDGE_CASES = ("1505",)
+
+
 def pick_sample(db):
     con = db.con
     def q(sql):
         return [r[0] for r in con.execute(sql).fetchall()]
+    # Desempate por taric en todas las consultas → muestra DETERMINISTA (sin él,
+    # los empates en nº de candidatos hacían variar la muestra entre ejecuciones
+    # y el KPI oscilaba según cayera o no un producto difícil).
+    curated = q("SELECT taric FROM nomenclature WHERE level=4 AND taric IN "
+                f"({','.join(repr(t) for t in EDGE_CASES)})")
     rich = q("SELECT taric FROM (SELECT taric, count(DISTINCT country_code) nc "
              "FROM trade WHERE flow='X' AND province_code IS NULL GROUP BY taric "
-             "ORDER BY nc DESC LIMIT 2)")
+             "ORDER BY nc DESC, taric LIMIT 2)")
     mid = q("SELECT taric FROM (SELECT taric, count(DISTINCT country_code) nc "
             "FROM trade WHERE flow='X' AND province_code IS NULL GROUP BY taric "
-            "ORDER BY nc DESC) WHERE nc BETWEEN 10 AND 25 LIMIT 1")
+            "ORDER BY nc DESC, taric) WHERE nc BETWEEN 10 AND 25 LIMIT 1")
     low = q("SELECT taric FROM (SELECT taric, count(DISTINCT country_code) nc "
             "FROM trade WHERE flow='X' AND province_code IS NULL "
             "AND period >= DATE '2023-04-01' GROUP BY taric "
             "HAVING nc BETWEEN 1 AND 4) ORDER BY taric LIMIT 1")
     seen, products = set(), []
-    for t in rich + mid + low:
+    for t in curated + rich + mid + low:
         if t not in seen:
             seen.add(t)
             products.append(t)
