@@ -466,6 +466,17 @@ function bindWeightsReset() {
   });
 }
 
+function bindWeightsEqual() {
+  $('#btn-equal-weights').addEventListener('click', () => {
+    const equal = 1 / COMPONENTS.length; // 0.2 para 5 criterios
+    const weights = {};
+    for (const c of COMPONENTS) weights[c.key] = equal;
+    state.weights = weights;
+    renderSliders();
+    updateRanking(true);
+  });
+}
+
 /* ============================== Ranking ============================== */
 
 function computeScore(components, weights) {
@@ -1275,6 +1286,7 @@ async function init() {
   bindSearch();
   bindExampleChips();
   bindWeightsReset();
+  bindWeightsEqual();
   bindReport();
   bindCopySummary();
   bindCountryDownloads();

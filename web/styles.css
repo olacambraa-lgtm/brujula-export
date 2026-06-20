@@ -117,6 +117,21 @@ button { font: inherit; color: inherit; }
   background: var(--card-elevated); border: 1px solid var(--line-strong);
   border-radius: 3px; box-shadow: var(--shadow-strong);
   max-height: 340px; overflow: auto; padding: 4px;
+  scrollbar-width: thin; scrollbar-color: var(--line-strong) var(--bg-surface);
+}
+#search-results::-webkit-scrollbar {
+  width: 10px;
+}
+#search-results::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+}
+#search-results::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 5px;
+  border: 2px solid var(--bg-surface);
+}
+#search-results::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
 }
 .search-item {
   display: flex; align-items: baseline; gap: 10px;
@@ -357,7 +372,24 @@ button { font: inherit; color: inherit; }
 
 /* ──────────── Ranking table ──────────── */
 /* scrollbar-gutter: reserva el hueco del scrollbar para que no tape la columna €/kg (§4.7) */
-.ranking-card { padding: 0; overflow: auto; max-height: calc(100vh - 150px); scrollbar-gutter: stable; }
+.ranking-card {
+  padding: 0; overflow: auto; max-height: calc(100vh - 150px); scrollbar-gutter: stable;
+  scrollbar-width: thin; scrollbar-color: var(--line-strong) var(--bg-surface);
+}
+.ranking-card::-webkit-scrollbar {
+  width: 10px;
+}
+.ranking-card::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+}
+.ranking-card::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 5px;
+  border: 2px solid var(--bg-surface);
+}
+.ranking-card::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
 table.ranking { width: 100%; border-collapse: collapse; font-size: 13px; }
 .ranking thead th {
   position: sticky; top: 0; z-index: 5;
