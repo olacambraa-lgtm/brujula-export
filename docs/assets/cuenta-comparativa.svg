@@ -1,0 +1,62 @@
+<svg viewBox="0 0 700 458" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'Segoe UI',sans-serif" role="img" aria-label="Comparativa: sin cuenta solo datos nacionales y sin Aragón; con cuenta gratuita datos completos incluyendo Aragón y Zaragoza">
+
+  <rect width="700" height="458" fill="#081422" rx="10"/>
+
+  <text x="350" y="34" text-anchor="middle" font-size="10" fill="#6e8ba5" letter-spacing="2" font-weight="500">BRÚJULA EXPORT</text>
+  <text x="350" y="60" text-anchor="middle" font-size="21" font-weight="500" fill="#ede8d8">¿Necesito crear una cuenta?</text>
+
+  <!-- TARJETA SIN CUENTA -->
+  <rect x="24" y="78" width="298" height="326" rx="5" fill="#102236" stroke="#7a6428" stroke-width="1.5"/>
+  <rect x="24" y="78" width="298" height="4" rx="3" fill="#c9a84c"/>
+
+  <text x="173" y="109" text-anchor="middle" font-size="15" font-weight="500" fill="#c9a84c">Sin cuenta</text>
+  <text x="173" y="128" text-anchor="middle" font-size="11" fill="#6e8ba5">Descarga pública · sin registro</text>
+  <line x1="44" y1="141" x2="302" y2="141" stroke="#192e47" stroke-width="0.5"/>
+
+  <text x="54" y="171" font-size="15" fill="#d14e40">✗</text>
+  <text x="76" y="171" font-size="13" fill="#ddd4bc">Solo datos a nivel nacional</text>
+
+  <text x="54" y="214" font-size="15" fill="#d14e40">✗</text>
+  <text x="76" y="212" font-size="13" fill="#ddd4bc">Sin información de Aragón</text>
+  <text x="76" y="229" font-size="13" fill="#ddd4bc">ni Zaragoza</text>
+
+  <text x="54" y="268" font-size="15" fill="#d14e40">✗</text>
+  <text x="76" y="266" font-size="13" fill="#ddd4bc">Primera descarga muy lenta</text>
+  <text x="76" y="283" font-size="13" fill="#7a6428">Entre 5 y 8 horas · todo el histórico</text>
+
+  <text x="54" y="325" font-size="15" fill="#d14e40">✗</text>
+  <text x="76" y="323" font-size="13" fill="#ddd4bc">Análisis exportador incompleto</text>
+  <text x="76" y="340" font-size="13" fill="#7a6428">Válido solo como primer vistazo</text>
+
+  <!-- VS -->
+  <circle cx="350" cy="241" r="24" fill="#081422" stroke="#213d5c" stroke-width="1.5"/>
+  <text x="350" y="246" text-anchor="middle" font-size="13" font-weight="500" fill="#6e8ba5">vs</text>
+
+  <!-- TARJETA CON CUENTA -->
+  <rect x="378" y="78" width="298" height="326" rx="5" fill="#102236" stroke="#2596a8" stroke-width="2"/>
+  <rect x="378" y="78" width="298" height="4" rx="3" fill="#2596a8"/>
+
+  <text x="527" y="109" text-anchor="middle" font-size="15" font-weight="500" fill="#2596a8">Con cuenta gratuita</text>
+  <text x="527" y="128" text-anchor="middle" font-size="11" fill="#6e8ba5">Registro en menos de 5 minutos</text>
+  <line x1="398" y1="141" x2="656" y2="141" stroke="#192e47" stroke-width="0.5"/>
+
+  <text x="403" y="171" font-size="15" fill="#3ab07e">✓</text>
+  <text x="425" y="171" font-size="13" fill="#ddd4bc">Datos nacionales y provinciales</text>
+
+  <text x="403" y="214" font-size="15" fill="#3ab07e">✓</text>
+  <text x="425" y="212" font-size="13" fill="#ddd4bc">Aragón y Zaragoza incluidos</text>
+  <text x="425" y="229" font-size="13" fill="#ddd4bc">análisis completo disponible</text>
+
+  <text x="403" y="268" font-size="15" fill="#3ab07e">✓</text>
+  <text x="425" y="266" font-size="13" fill="#ddd4bc">Solo descarga los meses nuevos</text>
+  <text x="425" y="283" font-size="13" fill="#6e8ba5">Actualizaciones rápidas</text>
+
+  <text x="403" y="325" font-size="15" fill="#3ab07e">✓</text>
+  <text x="425" y="323" font-size="13" fill="#ddd4bc">Completamente gratuita</text>
+  <text x="425" y="340" font-size="13" fill="#6e8ba5">Sin tarjeta ni compromiso</text>
+
+  <!-- FOOTER -->
+  <rect x="76" y="418" width="548" height="30" rx="4" fill="#0d1c2e" stroke="#192e47" stroke-width="0.5"/>
+  <text x="350" y="438" text-anchor="middle" font-size="11.5" fill="#6e8ba5">Las dos opciones abren la misma herramienta · la cuenta amplía la cobertura de datos</text>
+
+</svg>

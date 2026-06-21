@@ -104,25 +104,9 @@ Los datos no van en el repositorio (son grandes y el ministerio los actualiza ca
 
 ### Flujo de datos
 
-```mermaid
-flowchart LR
-    DC(["DataComex\noficial"])
-
-    CSV["Vía pública · CSV\nnacional · sin cuenta"]
-    API["Vía API · nacional +\nprovincial Aragón · cuenta gratis"]
-
-    ETL["ETL · descarga\nincremental · swap atómico"]
-
-    DB[("DuckDB\n100 % local")]
-    APP(["FastAPI + SPA Web\nlocalhost:8765"])
-
-    DC --> CSV
-    DC --> API
-    CSV --> ETL
-    API --> ETL
-    ETL --> DB
-    DB --> APP
-```
+<p align="center">
+  <img src="docs/assets/cuenta-comparativa.svg" alt="Comparativa: sin cuenta solo datos nacionales; con cuenta gratuita datos completos incluyendo Aragón y Zaragoza" width="700"/>
+</p>
 
 ### Con cuenta o sin cuenta
 
