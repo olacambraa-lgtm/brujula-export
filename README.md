@@ -150,6 +150,8 @@ Si prefieres usar directamente tus datos de acceso a DataComex:
 
 Esto conecta con DataComex y descarga los datos de comercio exterior de España. **La primera vez tarda entre 15 y 30 minutos** (descarga varios años de histórico). Verás texto avanzando en el Terminal — es normal, espera hasta que aparezca de nuevo el `$`.
 
+> **¿Se ha cortado la conexión a internet?** No hay problema. Vuelve a ejecutar el mismo comando `./update-data.sh` cuando recuperes la conexión. La descarga es **incremental**: detecta qué archivos ya tiene y continúa exactamente desde donde se quedó, sin empezar de cero.
+
 ---
 
 ### Paso 4 — Arranca la herramienta
