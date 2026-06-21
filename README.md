@@ -7,7 +7,6 @@ Escribes un producto (texto o código TARIC) y la herramienta te da un ranking d
 > *¿Dónde debería exportar este producto?* — eso es lo que responde.
 
 <br>
-<p align="center">
 
 [![Liveness DataComex](https://github.com/olacambraa-lgtm/brujula-export/actions/workflows/datacomex-liveness.yml/badge.svg)](https://github.com/olacambraa-lgtm/brujula-export/actions/workflows/datacomex-liveness.yml)
 [![Licencia MIT](https://img.shields.io/badge/licencia-MIT-blue?labelColor=0d1117)](LICENSE)
