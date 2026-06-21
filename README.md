@@ -156,7 +156,7 @@ Decisiones de arquitectura en `docs/adr/`. Spec completa en `docs/specs/2026-06-
 
 ### Criterios de selección
 
-El scoring utiliza 5 componentes normalizados a percentil [0-100]:
+El scoring utiliza 5 componentes normalizados a percentil
 
 <div align="center">
   
