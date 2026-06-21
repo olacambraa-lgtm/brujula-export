@@ -126,9 +126,11 @@ flowchart LR
 
 La herramienta está diseñada para usarse **con cuenta gratuita de DataComex**. Sin cuenta también funciona, pero con importantes limitaciones:
 
-**Sin cuenta de DataComex** — la app descarga solo datos nacionales básicos por la vía pública. No hay desglose provincial, así que el análisis de Aragón/Zaragoza desaparece por completo. Si tu objetivo es analizar el potencial exportador de empresas aragonesas, esta opción no tiene mucho sentido.
+**Sin cuenta de DataComex**
+La app descarga solo datos nacionales básicos por la vía pública. No hay desglose provincial, así que el análisis de Aragón/Zaragoza desaparece por completo. Si tu objetivo es analizar el potencial exportador de empresas aragonesas, esta opción no tiene mucho sentido.
 
-**Con cuenta gratuita de DataComex** — acceso completo: datos nacionales y provinciales (Aragón/Zaragoza), scoring con todos los indicadores, fichas de mercado sin lagunas. Es la versión para la que fue diseñada la herramienta. Registrarse es gratuito y lleva menos de 5 minutos.
+**Con cuenta gratuita de DataComex** 
+Acceso completo: datos nacionales y provinciales (Aragón/Zaragoza), scoring con todos los indicadores, fichas de mercado sin lagunas. Es la versión para la que fue diseñada la herramienta. Registrarse es gratuito y lleva menos de 5 minutos.
 
 Cuando ejecutas `./update-data.sh`, la app descarga solo los meses que le faltan — no empieza de cero cada vez. Para que los datos nuevos aparezcan en la app, reinicia con `./run.sh` (o `./run.sh --update` para actualizar y arrancar en un paso).
 
@@ -182,6 +184,7 @@ Detalle completo (tiempos, validaciones, vías API/CSV, límites del formulario 
 
 ## Fuente y licencia
 
-**Fuente de datos:** [DataComex](https://datacomex.comercio.es) — Secretaría de Estado de Comercio. Uso interno/demostrativo con cita de fuente y fecha, conforme a las condiciones generales de reutilización ministeriales. No redistribuir datos derivados comercialmente sin confirmación del titular.
+**Fuente de datos:** [DataComex](https://datacomex.comercio.es)  
+Estadísticas de comercio exterior de bienes de España y la UE
 
-**Código:** licencia [MIT](LICENSE). La licencia cubre el código; los datos de DataComex mantienen sus propias condiciones y no se redistribuyen con el repo.
+**Código:** licencia [MIT](LICENSE).
