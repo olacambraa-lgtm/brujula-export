@@ -69,10 +69,12 @@ Es la más cómoda. El token es permanente y no hay que renovarlo.
 1. **Crea una cuenta gratuita** en <https://datacomex.comercio.es/User> (correo y contraseña). Confirma el correo e inicia sesión.
 2. **Obtén tu token:** en la sección de ayuda de la API de DataComex, pulsa **«Obtener Token»** y copia el texto largo que aparece.
 3. **Crea tu `.env`** a partir de la plantilla:
+   
    ```bash
    cp .env.example .env
    ```
 4. Abre `.env` y pega el token en esta línea (quita la `#` del principio):
+   
    ```
    DATACOMEX_TOKEN=eyJhbGciOi…tu-token
    ```
