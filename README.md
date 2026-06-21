@@ -156,7 +156,7 @@ Decisiones de arquitectura en `docs/adr/`. Spec completa en `docs/specs/2026-06-
 
 ### Criterios de selección
 
-El scoring utiliza 6 componentes normalizados a percentil [0-100]:
+El scoring utiliza 5 componentes normalizados a percentil [0-100]:
 
 <div align="center">
   
@@ -166,7 +166,6 @@ El scoring utiliza 6 componentes normalizados a percentil [0-100]:
 | **Crecimiento** | Tasa anual compuesta últimos 3 años |
 | **Estabilidad** | Consistencia en volúmenes (sin caídas bruscas) |
 | **Valor unitario €/kg** | Precio promedio y margen potencial |
-| **Espacio competitivo** | Concentración relativa de competidores |
 | **Accesibilidad** | Barreras arancelarias y acuerdos comerciales |
 
 </div>
