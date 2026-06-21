@@ -158,6 +158,8 @@ Decisiones de arquitectura en `docs/adr/`. Spec completa en `docs/specs/2026-06-
 
 El scoring utiliza 6 componentes normalizados a percentil [0-100]:
 
+<div align="center">
+  
 | Criterio | Descripción |
 |----------|-------------|
 | **Tamaño de mercado** | Volumen total de importaciones (USD) |
@@ -166,6 +168,8 @@ El scoring utiliza 6 componentes normalizados a percentil [0-100]:
 | **Valor unitario €/kg** | Precio promedio y margen potencial |
 | **Espacio competitivo** | Concentración relativa de competidores |
 | **Accesibilidad UE** | Barreras arancelarias y acuerdos comerciales |
+
+</div>
 
 **Notas:**
 - Pesos ajustables en vivo mediante sliders
