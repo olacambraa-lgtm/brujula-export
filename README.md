@@ -93,15 +93,6 @@ Con cualquiera de las dos opciones, `./run.sh` y `./update-data.sh` cargan el `.
 
 ---
 
-## Datos dinámicos
-
-Los datos no van en el repositorio (son grandes y el ministerio los actualiza cada mes): cada usuario los descarga y los mantiene al día con `./update-data.sh`. Cuando DataComex publica un mes nuevo, basta volver a ejecutarlo.
-
-```bash
-./update-data.sh   # trae lo último de DataComex y reconstruye la base
-./run.sh           # sirve los datos (offline)
-```
-
 <p align="center">
   <img src="docs/assets/cuenta-comparativa.svg" alt="Comparativa: sin cuenta solo datos nacionales; con cuenta gratuita datos completos incluyendo Aragón y Zaragoza" width="700"/>
 </p>
@@ -120,6 +111,16 @@ Cuando ejecutas `./update-data.sh`, la app descarga solo los meses que le faltan
 
 > La primera descarga por la vía pública (sin cuenta) baja todo el histórico desde 2015 y puede tardar varias horas por los límites del formulario público (~5-8 h, ~42 MB). Para un primer vistazo más rápido: `./update-data.sh --from 2022-01` (~1,5 h). Un CI opcional ([`datacomex-liveness.yml`](.github/workflows/datacomex-liveness.yml)) avisa si DataComex cambia algo que rompa la extracción.
 
+---
+
+## Datos dinámicos
+
+Los datos no van en el repositorio (son grandes y el ministerio los actualiza cada mes): cada usuario los descarga y los mantiene al día con `./update-data.sh`. Cuando DataComex publica un mes nuevo, basta volver a ejecutarlo.
+
+```bash
+./update-data.sh   # trae lo último de DataComex y reconstruye la base
+./run.sh           # sirve los datos (offline)
+```
 ---
 
 ## Arquitectura
