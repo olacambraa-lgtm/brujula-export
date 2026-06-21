@@ -152,6 +152,27 @@ Decisiones de arquitectura en `docs/adr/`. Spec completa en `docs/specs/2026-06-
   <img src="docs/assets/scoring.svg" alt="Scoring multicriterio: 6 criterios con sus pesos" width="700"/>
 </p>
 
+---
+
+### Criterios de selección
+
+El scoring utiliza 6 componentes normalizados a percentil [0-100]:
+
+| Criterio | Peso | Descripción |
+|----------|------|-------------|
+| **Tamaño de mercado** | 25 % | Volumen total de importaciones (USD) |
+| **Crecimiento CAGR 3a** | 25 % | Tasa anual compuesta últimos 3 años |
+| **Estabilidad exportación** | 15 % | Consistencia en volúmenes (sin caídas bruscas) |
+| **Valor unitario €/kg** | 15 % | Precio promedio y margen potencial |
+| **Espacio competitivo** | 10 % | Concentración relativa de competidores |
+| **Accesibilidad UE** | 10 % | Barreras arancelarias y acuerdos comerciales |
+
+**Notas:**
+- Pesos ajustables en vivo mediante sliders
+- Métrica incalculable → componente neutro 50 + flag visible
+- Celdas con secreto estadístico → `<n/d>`
+
+
 Seis componentes por país, normalizados a percentil [0-100] entre los destinos candidatos del producto: **tamaño** (25 %), **crecimiento CAGR 3a** (25 %), **estabilidad** (15 %), **valor unitario €/kg** (15 %), **espacio competitivo €/operador** (10 %), **accesibilidad UE/acuerdos** (10 %). Los pesos se ajustan en vivo con sliders. Métrica incalculable → componente neutro 50 + flag visible; celdas con secreto estadístico → «n/d», nunca 0; datos 2024+ marcados como provisionales hasta la UI.
 
 ---
