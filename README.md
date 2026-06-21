@@ -102,8 +102,6 @@ Los datos no van en el repositorio (son grandes y el ministerio los actualiza ca
 ./run.sh           # sirve los datos (offline)
 ```
 
-### Flujo de datos
-
 <p align="center">
   <img src="docs/assets/cuenta-comparativa.svg" alt="Comparativa: sin cuenta solo datos nacionales; con cuenta gratuita datos completos incluyendo Aragón y Zaragoza" width="700"/>
 </p>
