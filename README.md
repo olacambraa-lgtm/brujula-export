@@ -17,6 +17,8 @@ Escribes un producto (texto o código TARIC) y la herramienta te da un ranking d
 ![FastAPI](https://img.shields.io/badge/FastAPI-scoring-a78bfa?logo=fastapi&logoColor=white&labelColor=0d1117)
 ![Offline](https://img.shields.io/badge/100%25-offline-10b981?labelColor=0d1117)
 
+</div>
+
 <br>
 
 <p align="center">
