@@ -23,10 +23,6 @@ Escribes un producto (texto o código TARIC) y la herramienta te da un ranking d
 
 ---
 
-<img width="2828" height="1622" alt="image" src="https://github.com/user-attachments/assets/486eca2e-f93d-4e6b-a411-989c0a62b5e6" />
-
----
-
 ## En un vistazo
 
 | | |
@@ -37,6 +33,12 @@ Escribes un producto (texto o código TARIC) y la herramienta te da un ranking d
 | **Cuota Aragón/Zaragoza** | Desglose provincial disponible con cuenta gratuita de DataComex |
 | **Datos siempre al día** | Ejecutas la actualización cuando quieras y la app refleja lo último publicado |
 | **Sin build step** | SPA vanilla JS + ECharts vendorizado; funciona desde cualquier navegador moderno |
+
+---
+
+
+<img width="2828" height="1622" alt="image" src="https://github.com/user-attachments/assets/486eca2e-f93d-4e6b-a411-989c0a62b5e6" />
+
 
 ---
 
