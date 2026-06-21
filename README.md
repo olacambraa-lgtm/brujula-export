@@ -62,7 +62,7 @@ La herramienta no incluye datos: cada usuario descarga los suyos con su propia c
 
 Tienes dos formas de configurar el acceso:
 
-### Opción A — Token (recomendado)
+### Opción A: Token (recomendado)
 
 Es la más cómoda. El token es permanente y no hay que renovarlo.
 
@@ -77,7 +77,7 @@ Es la más cómoda. El token es permanente y no hay que renovarlo.
    DATACOMEX_TOKEN=eyJhbGciOi…tu-token
    ```
 
-### Opción B — Correo y contraseña
+### Opción B: Correo y contraseña
 
 Si prefieres no usar el token, puedes poner directamente las credenciales con las que te registraste:
 ```
