@@ -162,12 +162,12 @@ El scoring utiliza 6 componentes normalizados a percentil [0-100]:
   
 | Criterio | Descripción |
 |----------|-------------|
-| **Tamaño de mercado** | Volumen total de importaciones (USD) |
-| **Crecimiento CAGR 3a** | Tasa anual compuesta últimos 3 años |
-| **Estabilidad exportación** | Consistencia en volúmenes (sin caídas bruscas) |
+| **Tamaño** | Volumen total de importaciones (USD) |
+| **Crecimiento** | Tasa anual compuesta últimos 3 años |
+| **Estabilidad** | Consistencia en volúmenes (sin caídas bruscas) |
 | **Valor unitario €/kg** | Precio promedio y margen potencial |
 | **Espacio competitivo** | Concentración relativa de competidores |
-| **Accesibilidad UE** | Barreras arancelarias y acuerdos comerciales |
+| **Accesibilidad** | Barreras arancelarias y acuerdos comerciales |
 
 </div>
 
