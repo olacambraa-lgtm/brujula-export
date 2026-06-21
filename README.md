@@ -46,7 +46,39 @@ Escribes un producto (texto o código TARIC) y la herramienta te da un ranking d
 
 ---
 
-## Primeros pasos
+## Instalación paso a paso
+
+> Esta guía está pensada para cualquier persona, aunque no tengas experiencia con programación ni con el Terminal. Sigue los pasos en orden y tendrás la herramienta funcionando en tu ordenador.
+
+---
+
+### Antes de empezar
+
+Necesitas tener instalado **Python 3.11 o superior**. Para comprobarlo, abre el Terminal y escribe:
+
+```bash
+python3 --version
+```
+
+Si ves un número como `Python 3.11.x` o superior, estás listo. Si no tienes Python, descárgalo desde [python.org](https://www.python.org/downloads/).
+
+También necesitarás una **cuenta gratuita en DataComex** para descargar los datos oficiales. Puedes registrarte en <https://datacomex.comercio.es/User> — lleva menos de 5 minutos.
+
+---
+
+### ¿Cómo abro el Terminal?
+
+**En Mac:** Pulsa `Cmd ⌘ + Espacio`, escribe `Terminal` y pulsa Intro.
+
+Verás una ventana con texto. Es normal. Aquí pegarás los comandos de esta guía.
+
+> **¿Qué es un comando?** Es una instrucción de texto que le das al ordenador. Copia el bloque de texto, pégalo en el Terminal con `Cmd ⌘ + V` y pulsa **Intro** para ejecutarlo.
+
+---
+
+### Paso 1 — Descarga el proyecto
+
+Copia este bloque completo, pégalo en el Terminal y pulsa Intro:
 
 ```bash
 git clone https://github.com/olacambraa-lgtm/brujula-export
@@ -54,52 +86,139 @@ cd brujula-export
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 ```
 
-Configura tu acceso a DataComex (ver sección siguiente) y descarga los datos:
-
-```bash
-cp .env.example .env   # pega tus credenciales dentro (ver abajo)
-./update-data.sh       # descarga los datos de DataComex
-./run.sh               # → http://localhost:8765
-```
-
-> ¿Quieres ver cómo funciona antes de registrarte? Ejecuta `./run.sh` directamente: si no hay datos, la app genera un **dataset de demostración** y te avisa con un banner.
+El Terminal mostrará texto durante un par de minutos mientras descarga e instala todo. Espera a que aparezca de nuevo el símbolo `$` — eso significa que ha terminado.
 
 ---
 
-## Configurar DataComex
+### Paso 2 — Configura tus credenciales de DataComex
+
+La herramienta necesita conectarse a DataComex para descargar los datos. Tienes dos formas de hacerlo. **Elige solo una.**
+
+> ⚠️ **Importante:** usa el token **o** el correo y contraseña, nunca los dos a la vez. Si rellenas ambos, el sistema puede fallar o comportarse de forma inesperada. Cuando dudes, usa el token: es más fiable.
+
+---
+
+#### Opción A — Token (recomendado)
+
+El token es una clave larga que obtienes desde tu cuenta. Es más seguro y no caduca.
+
+1. Inicia sesión en [datacomex.comercio.es](https://datacomex.comercio.es)
+2. Ve a la sección **«Ayuda API»** y pulsa el botón **«Obtener Token»**
+3. Copia el texto largo que aparece (empieza por `eyJ…`)
+4. En el Terminal, ejecuta:
+   ```bash
+   cp .env.example .env
+   nano .env
+   ```
+5. Dentro del editor, busca la línea que empieza por `# DATACOMEX_TOKEN=`. Quita el `#` del principio y pega tu token al final:
+   ```
+   DATACOMEX_TOKEN=eyJhbGciOi…tu-token-completo-aquí
+   ```
+   Las líneas de `DATACOMEX_EMAIL` y `DATACOMEX_PASSWORD` deben seguir con `#` delante (inactivas).
+6. Guarda y cierra: pulsa `Ctrl+O` → Intro → `Ctrl+X`
+
+---
+
+#### Opción B — Correo y contraseña
+
+Si prefieres usar directamente tus datos de acceso a DataComex:
+
+1. En el Terminal, ejecuta:
+   ```bash
+   cp .env.example .env
+   nano .env
+   ```
+2. Rellena tus datos en las dos líneas siguientes. Si tu contraseña tiene caracteres especiales (`!`, `$`, `&`…), ponla entre comillas dobles:
+   ```
+   DATACOMEX_EMAIL="tucorreo@ejemplo.com"
+   DATACOMEX_PASSWORD="tucontraseña"
+   ```
+   La línea de `DATACOMEX_TOKEN` debe seguir con `#` delante (inactiva).
+3. Guarda y cierra: pulsa `Ctrl+O` → Intro → `Ctrl+X`
+
+> **¿El sistema rechaza tus credenciales?** Si al ejecutar el paso siguiente aparece el error `Credenciales DataComex rechazadas`, el problema suele estar en la contraseña. En ese caso, cambia a la Opción A (token): abre de nuevo el archivo con `nano .env`, añade `#` al inicio de las líneas de email y contraseña para desactivarlas, y activa la línea del token quitando su `#`.
+
+> **Privacidad:** tus credenciales viven solo en tu archivo `.env` local. Está en `.gitignore` y nunca se sube a ningún sitio.
+
+---
+
+### Paso 3 — Descarga los datos oficiales
+
+```bash
+./update-data.sh
+```
+
+Esto conecta con DataComex y descarga los datos de comercio exterior de España. **La primera vez tarda entre 15 y 30 minutos** (descarga varios años de histórico). Verás texto avanzando en el Terminal — es normal, espera hasta que aparezca de nuevo el `$`.
+
+---
+
+### Paso 4 — Arranca la herramienta
+
+```bash
+./run.sh
+```
+
+Cuando veas esta línea en el Terminal:
+
+```
+Uvicorn running on http://127.0.0.1:8765
+```
+
+Abre tu navegador y ve a:
+
+**→ http://localhost:8765**
+
+¡Listo! Ya tienes Brújula Export funcionando con datos reales.
+
+> **No cierres el Terminal mientras usas la herramienta.** El servidor necesita estar en marcha. Cuando termines, ciérralo pulsando `Ctrl+C`.
+
+---
+
+### Cómo arrancarla las próximas veces
+
+Cada vez que quieras usar la herramienta, abre el Terminal y ejecuta:
+
+```bash
+cd brujula-export
+./run.sh
+```
+
+Si aparece el error `ya hay un servidor escuchando en :8765`, significa que hay una sesión anterior activa. Ciérrala y vuelve a arrancar con:
+
+```bash
+lsof -ti TCP:8765 | xargs kill -9 2>/dev/null; sleep 1; ./run.sh
+```
+
+---
+
+### Actualizar los datos cada mes
+
+DataComex publica datos nuevos mensualmente. Para traer lo último:
+
+```bash
+cd brujula-export
+./update-data.sh
+```
+
+Cuando termine, reinicia la app para que los cambios se apliquen:
+
+```bash
+lsof -ti TCP:8765 | xargs kill -9 2>/dev/null; sleep 1; ./run.sh
+```
+
+---
+
+### ¿Quieres probarla sin datos reales?
+
+Ejecuta `./run.sh` directamente sin haber configurado nada. Si no hay datos descargados, la app genera automáticamente un **dataset de demostración** con datos inventados y te avisa con un banner. Es útil para ver cómo funciona la interfaz antes de registrarte en DataComex.
+
+---
+
+## Configurar DataComex (referencia rápida)
 
 La herramienta no incluye datos: cada usuario descarga los suyos con su propia cuenta de DataComex (gratuita). Sin credenciales la app funciona, pero con datos muy limitados — [ver diferencias](#con-cuenta-o-sin-cuenta).
 
-Tienes dos formas de configurar el acceso:
-
-### Opción A: Token (recomendado)
-
-Es la más cómoda. El token es permanente y no hay que renovarlo.
-
-1. **Crea una cuenta gratuita** en <https://datacomex.comercio.es/User> (correo y contraseña). Confirma el correo e inicia sesión.
-2. **Obtén tu token:** en la sección de ayuda de la API de DataComex, pulsa **«Obtener Token»** y copia el texto largo que aparece.
-3. **Crea tu `.env`** a partir de la plantilla:
-   
-   ```bash
-   cp .env.example .env
-   ```
-4. Abre `.env` y pega el token en esta línea (quita la `#` del principio):
-   
-   ```
-   DATACOMEX_TOKEN=eyJhbGciOi…tu-token
-   ```
-
-### Opción B: Correo y contraseña
-
-Si prefieres no usar el token, puedes poner directamente las credenciales con las que te registraste:
-```
-DATACOMEX_EMAIL=tucorreo@ejemplo.com
-DATACOMEX_PASSWORD=tucontraseña
-```
-
-Con cualquiera de las dos opciones, `./run.sh` y `./update-data.sh` cargan el `.env` automáticamente.
-
-> **Privacidad:** tus credenciales viven solo en tu `.env` local, que está en `.gitignore` y nunca se sube al repositorio.
+Con cualquiera de las dos opciones descritas arriba, `./run.sh` y `./update-data.sh` cargan el `.env` automáticamente.
 
 ---
 
