@@ -2,7 +2,9 @@
 
 **Selección de mercados de exportación con datos oficiales DataComex — 100 % local, sin APIs de pago.**
 
-Escribes un producto (texto o código TARIC) y la herramienta te da un ranking de países con scoring multicriterio, fichas de mercado y la cuota de Aragón/Zaragoza en esa exportación. Genera también un informe imprimible (resumen ejecutivo con los top-5 mercados y cifras clave) que puedes pegar directamente como contexto en cualquier IA externa.
+Escribes un producto (texto o código TARIC) y la herramienta te da un ranking de países con scoring multicriterio, fichas de mercado y la cuota de Aragón/Zaragoza en esa exportación. Genera también un informe imprimible (resumen ejecutivo con los top-5 mercados y cifras clave) que puedes pegar directamente como contexto en cualquier IA externa. Además, todas las gráficas generadas de cada país del score, son exportables a formato PNG y CSV, para poder utilizarlos en presentaciones, archivos Excel, etc.
+
+<img width="2828" height="1622" alt="image" src="https://github.com/user-attachments/assets/486eca2e-f93d-4e6b-a411-989c0a62b5e6" />
 
 > *¿Dónde debería exportar este producto?* — eso es lo que responde.
 
