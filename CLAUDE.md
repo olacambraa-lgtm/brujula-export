@@ -1,6 +1,6 @@
 # Brújula Export
 
-Herramienta local de selección de mercados de exportación sobre datos DataComex. Demo para la Cámara de Comercio de Zaragoza.
+Herramienta local y open source de selección de mercados de exportación sobre datos oficiales DataComex, con una capa de análisis provincial centrada en Aragón.
 
 ## Reglas duras
 

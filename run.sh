@@ -6,6 +6,12 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+# Carga automática de credenciales DataComex desde .env (si existe), para no
+# tener que exportarlas a mano antes de actualizar.
+if [ -f .env ]; then
+  set -a; . ./.env; set +a
+fi
+
 if [ ! -x .venv/bin/python ]; then
   echo "No existe el entorno .venv. Créalo una vez con:" >&2
   echo "  python3 -m venv .venv && .venv/bin/pip install -r requirements.txt" >&2

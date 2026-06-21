@@ -1,0 +1,109 @@
+<svg viewBox="0 0 820 210" xmlns="http://www.w3.org/2000/svg" width="820" role="img" aria-label="Arquitectura de Brújula Export: ETL, DuckDB, FastAPI, SPA Web">
+<defs>
+  <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#0d1117"/>
+    <stop offset="100%" stop-color="#161d2e"/>
+  </linearGradient>
+  <linearGradient id="c1" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#0f2440"/>
+    <stop offset="100%" stop-color="#091628"/>
+  </linearGradient>
+  <linearGradient id="c2" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#261a04"/>
+    <stop offset="100%" stop-color="#160f02"/>
+  </linearGradient>
+  <linearGradient id="c3" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#190f3f"/>
+    <stop offset="100%" stop-color="#0e0826"/>
+  </linearGradient>
+  <linearGradient id="c4" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#051e14"/>
+    <stop offset="100%" stop-color="#030f0a"/>
+  </linearGradient>
+  <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L7,3 z" fill="#2d4a6b"/>
+  </marker>
+  <style>
+    .card-title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; font-weight: 700; fill: #f1f5f9; }
+    .card-desc  { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 10px; fill: #64748b; }
+    .badge-text { font-family: 'Courier New', 'Lucida Console', monospace; font-size: 10px; font-weight: 700; }
+    .footer     { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 10px; fill: #334155; }
+  </style>
+</defs>
+
+<!-- Background -->
+<rect width="820" height="210" rx="14" fill="url(#bg)"/>
+<rect width="820" height="210" rx="14" fill="none" stroke="#1e3a5f" stroke-width="1"/>
+
+<!-- ═══ CARD 1 · ETL ═══ -->
+<rect x="32" y="28" width="162" height="140" rx="10" fill="url(#c1)" stroke="#163660" stroke-width="0.5"/>
+<rect x="32" y="28" width="162" height="4"   rx="3"  fill="#38bdf8"/>
+<!-- Badge -->
+<rect x="91" y="48" width="44" height="20" rx="4" fill="#071524"/>
+<text x="113" y="62" class="badge-text" fill="#38bdf8" text-anchor="middle">ETL</text>
+<!-- Dots decorativos -->
+<circle cx="52" cy="43" r="3" fill="#38bdf8" opacity="0.4"/>
+<circle cx="62" cy="43" r="3" fill="#38bdf8" opacity="0.25"/>
+<circle cx="72" cy="43" r="3" fill="#38bdf8" opacity="0.12"/>
+<!-- Content -->
+<text x="113" y="90" class="card-title" text-anchor="middle">DataComex</text>
+<text x="113" y="107" class="card-desc" text-anchor="middle">descarga incremental</text>
+<text x="113" y="121" class="card-desc" text-anchor="middle">Python · idempotente</text>
+<text x="113" y="135" class="card-desc" text-anchor="middle">swap atómico</text>
+<!-- Glow line -->
+<line x1="32" y1="155" x2="194" y2="155" stroke="#38bdf8" stroke-width="0.3" opacity="0.3"/>
+
+<!-- Arrow 1 -->
+<line x1="195" y1="98" x2="218" y2="98" stroke="#2d4a6b" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arr)"/>
+
+<!-- ═══ CARD 2 · DuckDB ═══ -->
+<rect x="222" y="28" width="162" height="140" rx="10" fill="url(#c2)" stroke="#3d2908" stroke-width="0.5"/>
+<rect x="222" y="28" width="162" height="4"   rx="3"  fill="#f59e0b"/>
+<rect x="278" y="48" width="52" height="20" rx="4" fill="#120c01"/>
+<text x="304" y="62" class="badge-text" fill="#f59e0b" text-anchor="middle">DuckDB</text>
+<circle cx="242" cy="43" r="3" fill="#f59e0b" opacity="0.4"/>
+<circle cx="252" cy="43" r="3" fill="#f59e0b" opacity="0.25"/>
+<circle cx="262" cy="43" r="3" fill="#f59e0b" opacity="0.12"/>
+<text x="303" y="90" class="card-title" text-anchor="middle">Base de datos</text>
+<text x="303" y="107" class="card-desc" text-anchor="middle">brujula.duckdb local</text>
+<text x="303" y="121" class="card-desc" text-anchor="middle">SQL analítico · rápido</text>
+<text x="303" y="135" class="card-desc" text-anchor="middle">100 % offline</text>
+<line x1="222" y1="155" x2="384" y2="155" stroke="#f59e0b" stroke-width="0.3" opacity="0.3"/>
+
+<!-- Arrow 2 -->
+<line x1="385" y1="98" x2="408" y2="98" stroke="#2d4a6b" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arr)"/>
+
+<!-- ═══ CARD 3 · FastAPI ═══ -->
+<rect x="412" y="28" width="162" height="140" rx="10" fill="url(#c3)" stroke="#21134e" stroke-width="0.5"/>
+<rect x="412" y="28" width="162" height="4"   rx="3"  fill="#a78bfa"/>
+<rect x="468" y="48" width="48" height="20" rx="4" fill="#0b0620"/>
+<text x="492" y="62" class="badge-text" fill="#a78bfa" text-anchor="middle">FastAPI</text>
+<circle cx="432" cy="43" r="3" fill="#a78bfa" opacity="0.4"/>
+<circle cx="442" cy="43" r="3" fill="#a78bfa" opacity="0.25"/>
+<circle cx="452" cy="43" r="3" fill="#a78bfa" opacity="0.12"/>
+<text x="493" y="90" class="card-title" text-anchor="middle">Motor de scoring</text>
+<text x="493" y="107" class="card-desc" text-anchor="middle">SQL DuckDB + percentiles</text>
+<text x="493" y="121" class="card-desc" text-anchor="middle">pesos ajustables en vivo</text>
+<text x="493" y="135" class="card-desc" text-anchor="middle">6 criterios multicriterio</text>
+<line x1="412" y1="155" x2="574" y2="155" stroke="#a78bfa" stroke-width="0.3" opacity="0.3"/>
+
+<!-- Arrow 3 -->
+<line x1="575" y1="98" x2="598" y2="98" stroke="#2d4a6b" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arr)"/>
+
+<!-- ═══ CARD 4 · SPA Web ═══ -->
+<rect x="602" y="28" width="186" height="140" rx="10" fill="url(#c4)" stroke="#0a2e1a" stroke-width="0.5"/>
+<rect x="602" y="28" width="186" height="4"   rx="3"  fill="#10b981"/>
+<rect x="660" y="48" width="70" height="20" rx="4" fill="#020f07"/>
+<text x="695" y="62" class="badge-text" fill="#10b981" text-anchor="middle">SPA Web</text>
+<circle cx="622" cy="43" r="3" fill="#10b981" opacity="0.4"/>
+<circle cx="632" cy="43" r="3" fill="#10b981" opacity="0.25"/>
+<circle cx="642" cy="43" r="3" fill="#10b981" opacity="0.12"/>
+<text x="695" y="90" class="card-title" text-anchor="middle">Interfaz</text>
+<text x="695" y="107" class="card-desc" text-anchor="middle">Vanilla JS · ECharts</text>
+<text x="695" y="121" class="card-desc" text-anchor="middle">ranking + fichas de mercado</text>
+<text x="695" y="135" class="card-desc" text-anchor="middle">funciona 100 % offline</text>
+<line x1="602" y1="155" x2="788" y2="155" stroke="#10b981" stroke-width="0.3" opacity="0.3"/>
+
+<!-- Footer note -->
+<text x="410" y="190" class="footer" text-anchor="middle">Brújula Export · stack ligero y local · sin APIs de pago · datos oficiales DataComex · ene 2015 → presente</text>
+</svg>

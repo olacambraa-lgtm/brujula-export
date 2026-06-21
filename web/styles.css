@@ -10,7 +10,7 @@
   --ink:            #ddd4bc;
   --ink-strong:     #ede8d8;
   --muted:          #6e8ba5;
-  /* Subido desde #3a5268 (≈2:1, ilegible en proyector) para alcanzar contraste
+  /* Subido desde #3a5268 (≈2:1, bajo contraste) para alcanzar contraste
      AA sobre las tarjetas oscuras en etiquetas, cabeceras de tabla y pistas. */
   --faint:          #6e8ba5;
   --line:           #192e47;

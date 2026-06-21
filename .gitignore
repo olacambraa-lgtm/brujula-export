@@ -6,4 +6,6 @@ data/
 !data/.gitkeep
 .DS_Store
 eval/reports/
+eval/ledger.jsonl
+eval/SCORECARD.md
 .env

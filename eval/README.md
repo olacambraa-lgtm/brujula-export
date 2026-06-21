@@ -15,11 +15,17 @@ y se itera midiendo si cada cambio mejora —o al menos no degrada— los
 
 Tarda ~1 min (barre ~200 productos contra la DB completa de 13,7 M filas).
 
+El harness de frontend (`eval.frontend`: KPIs de gráficas y exportaciones por Chrome
+headless) requiere además, fuera de `requirements.txt`, el paquete `websockets` y, en el
+sistema, Chrome/Chromium y `poppler` (`pdftoppm`).
+
 ## Salidas
+
+Todas son generadas por la ejecución e **ignoradas por git** (cada quien las regenera sobre su propia DB):
 
 - `SCORECARD.md` — última foto legible (puntuación global + tabla de KPIs).
 - `ledger.jsonl` — histórico (una línea por ejecución) para ver la mejora en el tiempo.
-- `reports/scorecard-<ts>.json` — volcado completo por ejecución (ignorado por git).
+- `reports/scorecard-<ts>.json` — volcado completo por ejecución.
 
 ## KPIs y cómo se miden
 

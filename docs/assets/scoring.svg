@@ -1,0 +1,114 @@
+<svg viewBox="0 0 700 330" xmlns="http://www.w3.org/2000/svg" width="700" role="img" aria-label="Scoring multicriterio: 6 componentes con sus pesos">
+<defs>
+  <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#0d1117"/>
+    <stop offset="100%" stop-color="#161d2e"/>
+  </linearGradient>
+  <style>
+    .label    { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 12.5px; fill: #cbd5e1; }
+    .pct      { font-family: 'Courier New', 'Lucida Console', monospace; font-size: 12px; font-weight: 700; }
+    .title    { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 19px; font-weight: 700; fill: #f1f5f9; }
+    .subtitle { font-family: 'Courier New', 'Lucida Console', monospace; font-size: 10px; letter-spacing: 2px; fill: #38bdf8; }
+    .note     { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 10px; fill: #334155; }
+    .tag      { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 9.5px; fill: #475569; }
+  </style>
+</defs>
+
+<!-- Background + border -->
+<rect width="700" height="330" rx="14" fill="url(#bg)"/>
+<rect width="700" height="330" rx="14" fill="none" stroke="#1e3a5f" stroke-width="1"/>
+
+<!-- Header strip -->
+<rect width="700" height="72" rx="14" fill="#0d1624"/>
+<rect y="62" width="700" height="10" fill="#0d1624"/>
+<rect y="62" width="700" height="1" fill="#1e3a5f"/>
+
+<!-- Title area -->
+<text x="30" y="33" class="subtitle">SCORING MULTICRITERIO</text>
+<text x="30" y="58" class="title">Criterios de selección de mercado</text>
+
+<!-- Column headers -->
+<text x="228" y="86" class="tag" text-anchor="middle">PESO</text>
+<line x1="228" y1="90" x2="568" y2="90" stroke="#1e3a5f" stroke-width="1"/>
+<text x="568" y="86" class="tag" text-anchor="end">0 %</text>
+<text x="228" y="86" class="tag">25 %</text>
+
+<!-- ═══ ROW 1 · Tamaño · 25% · cyan ═══ -->
+<circle cx="18" cy="117" r="5" fill="#38bdf8"/>
+<text x="30" y="122" class="label">Tamaño de mercado</text>
+<!-- track -->
+<rect x="228" y="106" width="340" height="17" rx="4" fill="#0f2035" opacity="0.8"/>
+<!-- filled bar (animate width from 0 to 85) -->
+<rect x="228" y="106" width="0"  height="17" rx="4" fill="#38bdf8" opacity="0.9">
+  <animate attributeName="width" from="0" to="85" dur="1.1s" begin="0.1s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1"/>
+</rect>
+<!-- shine -->
+<rect x="228" y="106" width="0" height="5" rx="3" fill="white" opacity="0.15">
+  <animate attributeName="width" from="0" to="85" dur="1.1s" begin="0.1s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1"/>
+</rect>
+<text x="650" y="122" class="pct" fill="#38bdf8" text-anchor="end">25 %</text>
+
+<!-- ═══ ROW 2 · Crecimiento · 25% · blue ═══ -->
+<circle cx="18" cy="152" r="5" fill="#3b82f6"/>
+<text x="30" y="157" class="label">Crecimiento CAGR 3 años</text>
+<rect x="228" y="141" width="340" height="17" rx="4" fill="#0f2035" opacity="0.8"/>
+<rect x="228" y="141" width="0"  height="17" rx="4" fill="#3b82f6" opacity="0.9">
+  <animate attributeName="width" from="0" to="85" dur="1.1s" begin="0.22s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1"/>
+</rect>
+<rect x="228" y="141" width="0" height="5" rx="3" fill="white" opacity="0.15">
+  <animate attributeName="width" from="0" to="85" dur="1.1s" begin="0.22s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1"/>
+</rect>
+<text x="650" y="157" class="pct" fill="#3b82f6" text-anchor="end">25 %</text>
+
+<!-- ═══ ROW 3 · Estabilidad · 15% · purple ═══ -->
+<circle cx="18" cy="187" r="5" fill="#a78bfa"/>
+<text x="30" y="192" class="label">Estabilidad exportación</text>
+<rect x="228" y="176" width="340" height="17" rx="4" fill="#0f2035" opacity="0.8"/>
+<rect x="228" y="176" width="0"  height="17" rx="4" fill="#a78bfa" opacity="0.9">
+  <animate attributeName="width" from="0" to="51" dur="1.1s" begin="0.34s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1"/>
+</rect>
+<rect x="228" y="176" width="0" height="5" rx="3" fill="white" opacity="0.15">
+  <animate attributeName="width" from="0" to="51" dur="1.1s" begin="0.34s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1"/>
+</rect>
+<text x="650" y="192" class="pct" fill="#a78bfa" text-anchor="end">15 %</text>
+
+<!-- ═══ ROW 4 · Valor unitario · 15% · amber ═══ -->
+<circle cx="18" cy="222" r="5" fill="#f59e0b"/>
+<text x="30" y="227" class="label">Valor unitario  €/kg</text>
+<rect x="228" y="211" width="340" height="17" rx="4" fill="#0f2035" opacity="0.8"/>
+<rect x="228" y="211" width="0"  height="17" rx="4" fill="#f59e0b" opacity="0.9">
+  <animate attributeName="width" from="0" to="51" dur="1.1s" begin="0.46s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1"/>
+</rect>
+<rect x="228" y="211" width="0" height="5" rx="3" fill="white" opacity="0.15">
+  <animate attributeName="width" from="0" to="51" dur="1.1s" begin="0.46s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1"/>
+</rect>
+<text x="650" y="227" class="pct" fill="#f59e0b" text-anchor="end">15 %</text>
+
+<!-- ═══ ROW 5 · Espacio competitivo · 10% · emerald ═══ -->
+<circle cx="18" cy="257" r="5" fill="#10b981"/>
+<text x="30" y="262" class="label">Espacio competitivo  €/operador</text>
+<rect x="228" y="246" width="340" height="17" rx="4" fill="#0f2035" opacity="0.8"/>
+<rect x="228" y="246" width="0"  height="17" rx="4" fill="#10b981" opacity="0.9">
+  <animate attributeName="width" from="0" to="34" dur="1.1s" begin="0.58s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1"/>
+</rect>
+<rect x="228" y="246" width="0" height="5" rx="3" fill="white" opacity="0.15">
+  <animate attributeName="width" from="0" to="34" dur="1.1s" begin="0.58s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1"/>
+</rect>
+<text x="650" y="262" class="pct" fill="#10b981" text-anchor="end">10 %</text>
+
+<!-- ═══ ROW 6 · Accesibilidad · 10% · rose ═══ -->
+<circle cx="18" cy="292" r="5" fill="#f43f5e"/>
+<text x="30" y="297" class="label">Accesibilidad UE / acuerdos</text>
+<rect x="228" y="281" width="340" height="17" rx="4" fill="#0f2035" opacity="0.8"/>
+<rect x="228" y="281" width="0"  height="17" rx="4" fill="#f43f5e" opacity="0.9">
+  <animate attributeName="width" from="0" to="34" dur="1.1s" begin="0.70s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1"/>
+</rect>
+<rect x="228" y="281" width="0" height="5" rx="3" fill="white" opacity="0.15">
+  <animate attributeName="width" from="0" to="34" dur="1.1s" begin="0.70s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1"/>
+</rect>
+<text x="650" y="297" class="pct" fill="#f43f5e" text-anchor="end">10 %</text>
+
+<!-- Bottom rule + note -->
+<line x1="30" y1="314" x2="670" y2="314" stroke="#1e3a5f" stroke-width="0.5"/>
+<text x="30" y="326" class="note">Pesos ajustables en vivo · métrica incalculable → componente neutro 50 · secreto estadístico → «n/d»</text>
+</svg>

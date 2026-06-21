@@ -4,12 +4,12 @@
 # si aún no está en marcha.
 
 # ------------------------------------------------------------
-# 1. Ir a la raíz del repositorio (Finder lanza .command con cwd=$HOME)
+# 1. Ir a la raíz del repositorio (este script vive en scripts/)
 # ------------------------------------------------------------
-cd "/Users/oscar-lac/Desktop/Reunión Marta Sorbed/brujula-export" || {
-    echo "❌  No se encontró el repositorio en:"
-    echo "    /Users/oscar-lac/Desktop/Reunión Marta Sorbed/brujula-export"
-    echo "Asegúrate de que la carpeta no se ha movido y vuelve a intentarlo."
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_DIR" || {
+    echo "❌  No se encontró la raíz del repositorio."
+    echo "    Mantén este script dentro de la carpeta scripts/ del repo."
     read -r -p "Pulsa Enter para cerrar…"
     exit 1
 }

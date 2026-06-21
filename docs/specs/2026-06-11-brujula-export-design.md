@@ -6,9 +6,9 @@
 
 ## 1. Problema y objetivo
 
-**Problema en una frase:** la Cámara de Comercio de Zaragoza ofrece "Selección de mercados" como servicio premium de consultoría a medida (semanas, "según presupuesto"); no existe una herramienta que responda al instante, con datos oficiales y metodología transparente, la pregunta *"¿dónde debería exportar este producto?"*.
+**Problema en una frase:** los servicios de "Selección de mercados" son consultoría a medida (semanas, "según presupuesto"); no existe una herramienta que responda al instante, con datos oficiales y metodología transparente, la pregunta *"¿dónde debería exportar este producto?"*.
 
-**Objetivo:** demo local (portátil de Oscar, sin internet, sin APIs de pago) que impresione a Marta Sorbed (Directora de Internacional) en una reunión de ~15 min, como demostración de las competencias de la oferta de Analista de Mercados Internacionales: análisis de mercados, IA aplicada y visualización avanzada.
+**Objetivo:** herramienta local (sin internet, sin APIs de pago) que demuestre, al instante, que el análisis de mercados de exportación — con datos oficiales, IA aplicada y visualización avanzada — puede ser transparente, reproducible y accesible.
 
 **Criterios de éxito medibles (Gate 0):**
 1. Ante cualquier código TARIC-4/NC con datos (~1.200 productos), devuelve ranking de países objetivo en <2 s.
@@ -22,15 +22,14 @@
 
 ## 2. Usuarios y narrativa
 
-- **Usuario primario:** Oscar conduciendo la demo.
-- **Espectador objetivo:** Marta Sorbed y técnicos del área internacional — perfil técnico-consultivo, conocen ESTACOM, PIC, TechMarket y la metodología de selección de mercados.
-- **Narrativa de la demo:** "esto que os enseño replica la primera capa de vuestro servicio de selección de mercados, con datos oficiales DataComex, al instante, y con las cautelas metodológicas correctas (provisionalidad, secreto estadístico, comercio declarado)".
+- **Usuario objetivo:** analistas y técnicos de comercio internacional — perfil técnico-consultivo, familiarizados con ESTACOM, PIC, TechMarket y la metodología de selección de mercados.
+- **Narrativa de uso:** "replica la primera capa de un servicio de selección de mercados, con datos oficiales DataComex, al instante, y con las cautelas metodológicas correctas (provisionalidad, secreto estadístico, comercio declarado)".
 
 ## 3. Arquitectura
 
 ```
 brujula-export/
-├── etl/            Extracción DataComex → data/brujula.duckdb  (se ejecuta antes de la demo)
+├── etl/            Extracción DataComex → data/brujula.duckdb  (se ejecuta antes de servir los datos)
 │   ├── download.py     descarga por la vía verificada (API con token / CSV / masiva)
 │   ├── load.py         normalización + carga DuckDB (flags provisional, celdas ocultas)
 │   └── nomenclature.py carga NC/TARIC con descripciones en español
@@ -92,7 +91,7 @@ Reglas de oro del ETL: celda oculta por secreto estadístico → `NULL`, nunca 0
 
 ## 5. Motor de scoring (el corazón)
 
-Para un producto TARIC dado, se calculan métricas por país destino sobre exportaciones españolas (demanda revelada del producto español — la misma lógica que usa la metodología camera). Países candidatos: todos con exportación española > 0 en los últimos 3 años.
+Para un producto TARIC dado, se calculan métricas por país destino sobre exportaciones españolas (demanda revelada del producto español). Países candidatos: todos con exportación española > 0 en los últimos 3 años.
 
 | Componente | Peso por defecto | Definición | Dirección |
 |---|---|---|---|
@@ -119,17 +118,17 @@ Para un producto TARIC dado, se calculan métricas por país destino sobre expor
 
 ## 7. Frontend (una pantalla, tres zonas)
 
-**Estética:** profesional tipo producto de datos (no prototipo); paleta sobria con acento granate (guiño a Cámara Zaragoza); tipografía del sistema; responsive no necesario (se presenta en portátil/proyector). Vanilla JS + ECharts 5 local. Sin build step: `web/` se sirve tal cual.
+**Estética:** profesional tipo producto de datos (no prototipo); paleta sobria con acento granate; tipografía del sistema. Vanilla JS + ECharts 5 local. Sin build step: `web/` se sirve tal cual.
 
 1. **Cabecera:** logo/nombre "Brújula Export", buscador con autocompletado (texto o código), badge "Datos: DataComex (S.E. Comercio) · ene 2015 – mar 2026 · datos 2024+ provisionales".
 2. **Zona izquierda — Ranking:** tabla de países ordenada por score con barra de score, mini-desglose por componente (barras apiladas), flags ⚠ para `low_data`. Panel plegable de **sliders de pesos** (reordena en vivo). Botón "Informe" → vista imprimible.
 3. **Zona derecha — Ficha país** (al hacer clic): serie mensual (provisionales en trazo discontinuo), estacionalidad, valor unitario vs mediana, operadores/año, **cuota de Aragón** en la exportación española del producto, y panel "Análisis del analista (IA)" si es producto estrella.
 
-**Vista informe:** página imprimible (CSS print) con ranking top-10, gráficos clave, metodología y disclaimer — el "entregable" que demuestra la función "elaboración de informes" de la oferta.
+**Vista informe:** página imprimible (CSS print) con ranking top-10, gráficos clave, metodología y disclaimer.
 
 ## 8. Capa IA (pregenerada, cero tokens en runtime)
 
-Antes de la reunión, Claude Code analiza los datos reales del DuckDB para 5-6 productos estrella aragoneses (según research: p.ej. automoción 8703/8708, porcino 0203, vino 2204, maquinaria, papel/cartón, electrodomésticos) y escribe `insights/<taric>.md`: análisis ejecutivo de ~400 palabras con estructura fija (lectura del ranking, mercado destacado, riesgo principal, recomendación accionable, cautelas metodológicas). El frontend lo muestra renderizado con etiqueta honesta: *"Generado con IA sobre los datos del panel · revisado por el analista"*.
+Claude Code analiza los datos reales del DuckDB para 5-6 productos estrella aragoneses (según research: p.ej. automoción 8703/8708, porcino 0203, vino 2204, maquinaria, papel/cartón, electrodomésticos) y escribe `insights/<taric>.md`: análisis ejecutivo de ~400 palabras con estructura fija (lectura del ranking, mercado destacado, riesgo principal, recomendación accionable, cautelas metodológicas). El frontend lo muestra renderizado con etiqueta honesta: *"Generado con IA sobre los datos del panel · revisado por el analista"*.
 
 ## 9. Manejo de errores
 
@@ -138,7 +137,7 @@ Antes de la reunión, Claude Code analiza los datos reales del DuckDB para 5-6 p
 - Celdas de secreto estadístico → "n/d (secreto estadístico)" nunca 0.
 - Meses provisionales siempre marcados visualmente.
 - Backend caído / fetch fallido → toast con instrucción de reinicio (`./run.sh`).
-- ETL: reintentos con backoff, validación de filas cargadas vs esperadas, abortar si descarga incompleta (no demo con datos a medias).
+- ETL: reintentos con backoff, validación de filas cargadas vs esperadas, abortar si descarga incompleta (no servir con datos a medias).
 
 ## 10. Testing
 
@@ -148,14 +147,13 @@ Antes de la reunión, Claude Code analiza los datos reales del DuckDB para 5-6 p
 - **Validación de datos reales:** totales anuales de 2-3 series contrastados contra cifras publicadas (DataComex web) con tolerancia.
 - **Visual:** arranque real + capturas con preview antes de dar por terminado.
 
-## 11. Guion de demo (10-12 min) — entregable docs/demo-guion.md
+## 11. Flujo de uso típico
 
-1. (1 min) Contexto: "datos oficiales DataComex, local, metodología transparente".
-2. (3 min) Producto estrella precargado (vino 2204): ranking, desglose del score, ficha de un país, cuota Aragón.
-3. (2 min) Sliders: "si priorizamos crecimiento sobre tamaño, el ranking cambia así" — demuestra criterio analítico.
-4. (2 min) **Momento wow:** "Marta, dime un producto de cualquier empresa que asesores" → búsqueda libre → ranking al instante.
-5. (2 min) Panel IA + botón Informe: el entregable de consultoría en un clic.
-6. (1 min) Cierre honesto: limitaciones (comercio declarado, sin nombres de empresas) y roadmap natural (Comtrade, alertas, TechMarket-like).
+1. Producto precargado por defecto (vino 2204): ranking, desglose del score, ficha de un país, cuota Aragón.
+2. Sliders de pesos: al priorizar crecimiento sobre tamaño, el ranking se reordena en vivo.
+3. Búsqueda libre de cualquier producto → ranking al instante.
+4. Botón Informe: genera el informe imprimible en un clic.
+5. Limitaciones visibles (comercio declarado, sin nombres de empresas) y roadmap natural (Comtrade, alertas).
 
 ## 12. Riesgos
 
@@ -163,5 +161,5 @@ Antes de la reunión, Claude Code analiza los datos reales del DuckDB para 5-6 p
 |---|---|
 | Vía de extracción DataComex inestable o con login | Research con verificación empírica ANTES de implementar ETL; fallback en cascada API → CSV consulta → granularidad TARIC-4 |
 | Volumen de datos (TARIC-8 × país × mes × provincia es enorme) | Granularidad TARIC-4; provincial solo Aragón; DuckDB maneja decenas de millones de filas sin problema |
-| Demo falla en vivo | 100 % offline, un comando, datos congelados, tests verdes, ensayo previo |
-| Zona gris legal de reutilización | Uso interno/demo no comercial + cita de fuente y fecha en la UI (cumple condiciones ministeriales de reutilización) |
+| Fallo en tiempo de ejecución | 100 % offline, un comando, datos locales, suite de tests verde |
+| Zona gris legal de reutilización | Uso interno/demostrativo no comercial + cita de fuente y fecha en la UI (cumple condiciones ministeriales de reutilización) |

@@ -10,7 +10,7 @@ DuckDB embebido (fichero único `data/brujula.duckdb`), consultado desde FastAPI
 
 ## Alternativas descartadas
 - **SQLite:** sin optimizador columnar; las agregaciones analíticas sobre millones de filas son un orden de magnitud más lentas.
-- **PostgreSQL:** requiere servicio corriendo — fricción y riesgo en demo.
+- **PostgreSQL:** requiere servicio corriendo — fricción y punto de fallo evitable.
 - **Parquet + pandas en memoria:** sin SQL declarativo para el motor de métricas; más código y más RAM.
 
 ## Consecuencias

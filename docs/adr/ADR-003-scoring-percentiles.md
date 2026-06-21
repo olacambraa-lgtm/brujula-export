@@ -11,7 +11,7 @@ Cada métrica se normaliza a percentil [0,100] **dentro del conjunto de países 
 ## Alternativas descartadas
 - **Z-scores:** sensibles a outliers extremos (típicos en comercio exterior: un país puede ser 100× el siguiente); los percentiles son robustos y explicables ("este país está en el percentil 90 de crecimiento").
 - **Min-max:** un solo outlier comprime el resto del rango a ~0.
-- **Ponderación en backend:** obligaría a round-trip por cada movimiento de slider; matar la fluidez mata el momento demo.
+- **Ponderación en backend:** obligaría a round-trip por cada movimiento de slider; matar la fluidez destruye la experiencia interactiva.
 
 ## Consecuencias
-Score explicable componente a componente (clave para credibilidad ante Marta); ranking relativo al producto (no comparable entre productos, se documenta en la metodología); winsorización p5-p95 previa al CAGR para evitar que rebotes desde base ~0 dominen.
+Score explicable componente a componente (clave para la credibilidad y explicabilidad); ranking relativo al producto (no comparable entre productos, se documenta en la metodología); winsorización p5-p95 previa al CAGR para evitar que rebotes desde base ~0 dominen.
