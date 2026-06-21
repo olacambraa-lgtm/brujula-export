@@ -28,10 +28,9 @@
 <text x="30" y="58" class="title">Criterios de selección de mercado</text>
 
 <!-- Column headers -->
-<text x="228" y="86" class="tag" text-anchor="middle">PESO</text>
-<line x1="228" y1="90" x2="568" y2="90" stroke="#1e3a5f" stroke-width="1"/>
-<text x="568" y="86" class="tag" text-anchor="end">0 %</text>
-<text x="228" y="86" class="tag">25 %</text>
+<text x="30" y="86" class="tag">CRITERIO</text>
+<text x="650" y="86" class="tag" text-anchor="end">PESO</text>
+<line x1="30" y1="91" x2="670" y2="91" stroke="#1e3a5f" stroke-width="0.5"/>
 
 <!-- ═══ ROW 1 · Tamaño · 25% · cyan ═══ -->
 <circle cx="18" cy="117" r="5" fill="#38bdf8"/>
