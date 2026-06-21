@@ -8,7 +8,7 @@ Escribes un producto (texto o código TARIC) y obtienes al instante un ranking d
 
 <br>
 
-[![Liveness DataComex](https://github.com/oscar-lac/brujula-export/actions/workflows/datacomex-liveness.yml/badge.svg)](https://github.com/oscar-lac/brujula-export/actions/workflows/datacomex-liveness.yml)
+[![Liveness DataComex](https://github.com/olacambraa-lgtm/brujula-export/actions/workflows/datacomex-liveness.yml/badge.svg)](https://github.com/olacambraa-lgtm/brujula-export/actions/workflows/datacomex-liveness.yml)
 [![Licencia MIT](https://img.shields.io/badge/licencia-MIT-blue?labelColor=0d1117)](LICENSE)
 ![Python](https://img.shields.io/badge/Python-3.11+-38bdf8?logo=python&logoColor=white&labelColor=0d1117)
 ![DuckDB](https://img.shields.io/badge/DuckDB-local-f59e0b?logo=duckdb&logoColor=white&labelColor=0d1117)
@@ -39,7 +39,7 @@ Escribes un producto (texto o código TARIC) y obtienes al instante un ranking d
 ## Primeros pasos
 
 ```bash
-git clone https://github.com/oscar-lac/brujula-export
+git clone https://github.com/olacambraa-lgtm/brujula-export
 cd brujula-export
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 ```
