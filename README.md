@@ -244,6 +244,12 @@ lsof -ti TCP:8765 | xargs kill -9 2>/dev/null; sleep 1; ./run.sh
 
 ---
 
+### En caso de estar algo perdido...
+
+Siempre puedes consultarle directamente a la IA. Utiliza el modelo de lenguaje que más útil te resulte y consultale copiando y pegando el link del directorio. Dependiendo del modelo y los permisos que le des puedes hasta pedirle que te lo instale directamente para no tener que hacer nada más que iniciar sesión en Datacomex y compartirle tus credenciales 😉 .
+
+---
+
 ### Actualizar los datos cada mes
 
 DataComex publica datos nuevos mensualmente. Para traer lo último:
