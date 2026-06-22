@@ -123,6 +123,144 @@ Cuando ejecutas `./update-data.sh`, la app descarga solo los meses que le faltan
 
 ---
 
+## Guía de instalación paso a paso
+
+> Esta guía está pensada para cualquier persona, aunque no tengas experiencia con programación ni con el Terminal. Sigue los pasos en orden y tendrás la herramienta funcionando en tu ordenador.
+
+---
+
+### Antes de empezar
+
+Necesitas tener instalado **Python 3.11 o superior**. Para comprobarlo, abre el Terminal y escribe:
+
+```bash
+python3 --version
+```
+
+Si ves un número como `Python 3.11.x` o superior, estás listo. Si no tienes Python, descárgalo desde [python.org](https://www.python.org/downloads/).
+
+---
+
+### ¿Cómo abro el Terminal?
+
+**En Mac:** Pulsa `Cmd ⌘ + Espacio`, escribe `Terminal` y pulsa Intro.
+
+Verás una ventana con texto. Es normal. Aquí pegarás los comandos de esta guía.
+
+> **¿Qué es un comando?** Es una instrucción de texto que le das al ordenador. Copia el bloque de texto, pégalo en el Terminal con `Cmd ⌘ + V` y pulsa **Intro** para ejecutarlo.
+
+---
+
+### Paso 1 — Descarga el proyecto
+
+Copia este bloque completo, pégalo en el Terminal y pulsa Intro:
+
+```bash
+git clone https://github.com/olacambraa-lgtm/brujula-export
+cd brujula-export
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+```
+
+El Terminal mostrará texto durante un par de minutos mientras descarga e instala todo. Espera a que aparezca de nuevo el símbolo `$` — eso significa que ha terminado.
+
+---
+
+### Paso 2 — Configura tus credenciales de DataComex
+
+Crea el archivo de configuración a partir de la plantilla:
+
+```bash
+cp .env.example .env
+nano .env
+```
+
+Se abrirá un editor de texto. Aquí tienes que elegir **una sola opción** para autenticarte:
+
+> ⚠️ **Importante:** usa el token **o** el correo y contraseña, nunca los dos a la vez. Si rellenas ambos, el sistema intentará usar el correo/contraseña y puede fallar aunque el token sea válido. Cuando dudes, usa el token: es siempre más fiable.
+
+**Con token** (recomendado) — busca la línea `# DATACOMEX_TOKEN=`, quita el `#` y pega tu token:
+```
+DATACOMEX_TOKEN=eyJhbGciOi…tu-token-completo-aquí
+```
+Las líneas de `DATACOMEX_EMAIL` y `DATACOMEX_PASSWORD` deben quedar con `#` delante (inactivas).
+
+**Con correo y contraseña** — rellena las dos líneas correspondientes (usa comillas dobles si tu contraseña tiene caracteres especiales como `!`, `$` o `&`):
+```
+DATACOMEX_EMAIL="tucorreo@ejemplo.com"
+DATACOMEX_PASSWORD="tucontraseña"
+```
+La línea de `DATACOMEX_TOKEN` debe quedar con `#` delante (inactiva).
+
+Guarda y cierra el editor: pulsa `Ctrl+O` → Intro → `Ctrl+X`.
+
+> **¿El sistema rechaza tus credenciales?** Si aparece el error `Credenciales DataComex rechazadas`, prueba a cambiar al token. Abre de nuevo el archivo con `nano .env`, añade `#` al inicio de las líneas de email y contraseña para desactivarlas, quita el `#` de la línea del token y guarda.
+
+---
+
+### Paso 3 — Descarga los datos oficiales
+
+```bash
+./update-data.sh
+```
+
+Esto conecta con DataComex y descarga los datos de comercio exterior de España. **La primera vez puede tardar entre 15 minutos y varias horas** según la antigüedad del histórico que se descargue. Verás texto avanzando en el Terminal — es normal, espera hasta que aparezca de nuevo el `$`.
+
+> **¿Se ha cortado la conexión a internet?** No hay problema. Vuelve a ejecutar el mismo comando `./update-data.sh` cuando recuperes la conexión. La descarga es **incremental**: detecta qué archivos ya tiene y continúa exactamente desde donde se quedó, sin empezar de cero.
+
+---
+
+### Paso 4 — Arranca la herramienta
+
+```bash
+./run.sh
+```
+
+Cuando veas esta línea en el Terminal:
+
+```
+Uvicorn running on http://127.0.0.1:8765
+```
+
+Abre tu navegador y ve a **http://localhost:8765**. ¡Listo!
+
+> **No cierres el Terminal mientras usas la herramienta.** El servidor necesita estar en marcha. Cuando termines, ciérralo pulsando `Ctrl+C`.
+
+---
+
+### Cómo arrancarla las próximas veces
+
+Cada vez que quieras usar la herramienta, abre el Terminal y ejecuta:
+
+```bash
+cd brujula-export
+./run.sh
+```
+
+Si aparece el error `ya hay un servidor escuchando en :8765`, hay una sesión anterior activa. Ciérrala y vuelve a arrancar con:
+
+```bash
+lsof -ti TCP:8765 | xargs kill -9 2>/dev/null; sleep 1; ./run.sh
+```
+
+---
+
+### Actualizar los datos cada mes
+
+DataComex publica datos nuevos mensualmente. Para traer lo último:
+
+```bash
+cd brujula-export
+./update-data.sh
+```
+
+Cuando termine, reinicia la app para que los cambios se apliquen:
+
+```bash
+lsof -ti TCP:8765 | xargs kill -9 2>/dev/null; sleep 1; ./run.sh
+```
+
+---
+
 ## Datos dinámicos
 
 Los datos no van en el repositorio (son grandes y el ministerio los actualiza cada mes): cada usuario los descarga y los mantiene al día con `./update-data.sh`. Cuando DataComex publica un mes nuevo, basta volver a ejecutarlo.
